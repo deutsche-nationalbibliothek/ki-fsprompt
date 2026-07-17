@@ -1,0 +1,51 @@
+---
+version: '3.4'
+services:
+
+
+  weaviate:
+    command:
+    - --host
+    - 0.0.0.0
+    - --port
+    - '8087'
+    - --scheme
+    - http
+    image: cr.weaviate.io/semitechnologies/weaviate:1.38.3
+    ports:
+    - 8087:8087
+    - 50051:50051
+    extra_hosts:
+    - "host.docker.internal:host-gateway"
+    restart: on-failure:0
+    healthcheck:
+      test: wget --no-verbose --tries=3 --spider http://localhost:8087/v1/.well-known/ready || exit 1
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'text2vec-huggingface'
+      ENABLE_MODULES: 'text2vec-huggingface'
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - /home/weaviate:/var/lib/weaviate
+  
+  text_embeddings_inference:
+    image: ghcr.io/huggingface/text-embeddings-inference:1.9
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "8090:80"
+    volumes:
+      - /home/huggingface-cache:/data
+    environment:
+      - MODEL_ID=BAAI/bge-m3
+      - HUGGINGFACE_HUB_CACHE=/data/hub
+    restart: always

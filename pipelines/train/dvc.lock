@@ -1,0 +1,477 @@
+schema: '2.0'
+stages:
+  create_vocab_collection:
+    cmd:
+    - "python ../../src/create_vocab_collection.py \\\n  --ttl_file ../../vocab/GND-Subjects-plus.ttl
+      \\\n  --collection_name ki_fsprompt_vocab \\\n  --model_name BAAI/bge-m3 \\\n\
+      \  --overwrite true\\\n  --TEI_port 8090 \\\n  --use_altLabels true \\\n  --manifest_out
+      ../../create_vocab_collection_manifest.json\n"
+    deps:
+    - path: ../../src/create_vocab_collection.py
+      hash: md5
+      md5: 3517b26e303a4ae7c805d9f10164c4f6
+      size: 9187
+    - path: ../../src/generate_embeddings.py
+      hash: md5
+      md5: 7ce62938475c51efa16d69491f4fc8e9
+      size: 1811
+    - path: ../../vocab/GND-Subjects-plus.ttl
+      hash: md5
+      md5: c53bbe604b605ab152749a970a353231
+      size: 70495107
+    params:
+      ../shared_params.yaml:
+        embedding.batch_size: 300
+        embedding.model: BAAI/bge-m3
+        vocab.manifest_out: create_vocab_collection_manifest.json
+        vocab.use_altLabels: true
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: ../../create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+  extract_prefLabels:
+    cmd:
+    - "python src/extract_prefLabels.py \\\n  --ttl_file vocab/GND-Subjects-plus.ttl
+      \\\n  --csv_output vocab/prefLabels.csv\n"
+    deps:
+    - path: src/create_vocab_collection.py
+      hash: md5
+      md5: a81cff4b914ccc0f9719b27178fc1a53
+      size: 8360
+    - path: src/extract_prefLabels.py
+      hash: md5
+      md5: f92a6d58d9af400c67a2f48553d3a3fc
+      size: 1885
+    - path: vocab/GND-Subjects-plus.ttl
+      hash: md5
+      md5: c53bbe604b605ab152749a970a353231
+      size: 70495107
+    params:
+      pipelines/shared_params.yaml:
+        vocab.prefLabels_csv: vocab/prefLabels.csv
+    outs:
+    - path: vocab/prefLabels.csv
+      hash: md5
+      md5: d5ca86e8b55a94ee46f013bf4381456d
+      size: 9940159
+  create_train_collection:
+    cmd:
+    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/train.csv
+      \\\n  --collection_name title_train \\\n  --text_type title \\\n  --chunk_size
+      512 \\\n  --batch_size 100 \\\n  --embedding_model BAAI/bge-m3 \\\n  --manifest_out
+      create_train_collection_manifest.json\n"
+    deps:
+    - path: ../../src/create_train_collection.py
+      hash: md5
+      md5: 936a45de4988dd597462c3214566c172
+      size: 12987
+    - path: ../preprocess/train.csv
+      hash: md5
+      md5: 38bf27a271bf53faf79203f9a1c4cf5b
+      size: 2728392
+    params:
+      params.yaml:
+        train.batch_size: 100
+        train.chunk_size: 512
+        train.text_type: title
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        retrieve.weaviate_collection_name: title_train
+    outs:
+    - path: create_train_collection_manifest.json
+      hash: md5
+      md5: eb80680dd2a31b2fbbfbbf90faf9370f
+      size: 268
+  retrieve:
+    cmd:
+    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/validate.csv
+      \\\n  --output_file retrieved_examples.csv \\\n  --n_examples 5 \\\n  --host
+      8090 \\\n  --collection_name title_train\n"
+    deps:
+    - path: ../../src/retrieve.py
+      hash: md5
+      md5: 6127d54f224ef9dce2eacfba9b70a648
+      size: 4050
+    - path: ../preprocess/validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+    - path: create_train_collection_manifest.json
+      hash: md5
+      md5: eb80680dd2a31b2fbbfbbf90faf9370f
+      size: 268
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        retrieve.n_examples: 5
+        retrieve.weaviate_collection_name: title_train
+    outs:
+    - path: retrieved_examples.csv
+      hash: md5
+      md5: 97c95240c044693e549ea7df5c0eefe7
+      size: 2489462
+  complete@mistral-7B-0p3:
+    cmd:
+    - mkdir -p predictions_model_wise/mistral-7B-0p3/
+    - "python ../../src/completion.py \\\n  --hf_model_name mistralai/Mistral-7B-Instruct-v0.3
+      \\\n  --dataset_file ../preprocess/validate.csv \\\n  --completion_file predictions_model_wise/mistral-7B-0p3/completions.csv
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
+      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
+      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
+      ../shared_params.yaml \n"
+    deps:
+    - path: ../../instructions/instruction03.txt
+      hash: md5
+      md5: 1f0213f7e08639598e8e908580fb6432
+      size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: 0fbb588059d9f9011a16639f4f6b0015
+      size: 2610
+    - path: ../../src/completion.py
+      hash: md5
+      md5: 5ead0eed80f73180b550771516a743c7
+      size: 13840
+    - path: ../../templates/model_to_template.json
+      hash: md5
+      md5: 57a1fd453632e3418b9d25f9b23a79d8
+      size: 505
+    - path: ../preprocess/validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+    - path: retrieved_examples.csv
+      hash: md5
+      md5: 97c95240c044693e549ea7df5c0eefe7
+      size: 2489462
+    params:
+      ../shared_params.yaml:
+        completion.custom_instruction: instructions/instruction03.txt
+        completion.prompt_template_dir: templates/
+        completion.vllm.samplingparams.max_chunks: 1
+        completion.vllm.samplingparams.max_new_tokens: 256
+        completion.vllm.samplingparams.max_total_tokens: 15000
+        completion.vllm.samplingparams.min_new_tokens: 0
+        completion.vllm.samplingparams.temperature: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: predictions_model_wise/mistral-7B-0p3/completions.csv
+      hash: md5
+      md5: 5065e9d7c19bb670d84e95842fd18553
+      size: 107531
+  complete@llama-3B-instruct:
+    cmd:
+    - mkdir -p predictions_model_wise/llama-3B/
+    - "python ../../src/completion.py \\\n  --hf_model_name meta-llama/Llama-3.2-3B-Instruct
+      \\\n  --dataset_file ../preprocess/validate.csv \\\n  --completion_file predictions_model_wise/llama-3B/completions.csv
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
+      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
+      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
+      ../shared_params.yaml \n"
+    deps:
+    - path: ../../instructions/instruction03.txt
+      hash: md5
+      md5: 1f0213f7e08639598e8e908580fb6432
+      size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: 0fbb588059d9f9011a16639f4f6b0015
+      size: 2610
+    - path: ../../src/completion.py
+      hash: md5
+      md5: 5ead0eed80f73180b550771516a743c7
+      size: 13840
+    - path: ../../templates/model_to_template.json
+      hash: md5
+      md5: 57a1fd453632e3418b9d25f9b23a79d8
+      size: 505
+    - path: ../preprocess/validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+    - path: retrieved_examples.csv
+      hash: md5
+      md5: 97c95240c044693e549ea7df5c0eefe7
+      size: 2489462
+    params:
+      ../shared_params.yaml:
+        completion.custom_instruction: instructions/instruction03.txt
+        completion.prompt_template_dir: templates/
+        completion.vllm.samplingparams.max_chunks: 1
+        completion.vllm.samplingparams.max_new_tokens: 256
+        completion.vllm.samplingparams.max_total_tokens: 15000
+        completion.vllm.samplingparams.min_new_tokens: 0
+        completion.vllm.samplingparams.temperature: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: predictions_model_wise/llama-3B/completions.csv
+      hash: md5
+      md5: 32edb79e6f6af89494647a45ffec3665
+      size: 118674
+  map@mistral-7B-0p3:
+    cmd:
+    - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/mistral-7B-0p3/completions.csv
+      \\\n  --output_file predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      \\\n  --mapping_stats predictions_model_wise/mistral-7B-0p3/mapping_stats.json
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+    - path: ../../src/mapping.py
+      hash: md5
+      md5: 4e975bad3a8eceb77dba981dd75c35d8
+      size: 12088
+    - path: predictions_model_wise/mistral-7B-0p3/completions.csv
+      hash: md5
+      md5: 5065e9d7c19bb670d84e95842fd18553
+      size: 107531
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        mapping.hyperparameters.alpha: 0.7
+        mapping.hyperparameters.min_cosine_similarity: 0.7
+        mapping.hyperparameters.search: hybrid
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      hash: md5
+      md5: 1c488f4c4be7f130b3120ca62fbb43bc
+      size: 343003
+    - path: predictions_model_wise/mistral-7B-0p3/mapping_stats.json
+      hash: md5
+      md5: 8e1424bedda59692b7c7a6c6e914dcc5
+      size: 53
+    - path: predictions_model_wise/mistral-7B-0p3/removed_mapped_predictions.csv
+      hash: md5
+      md5: 477e2e6242302e0745a3a7efc515ebf4
+      size: 6641
+  map@llama-3B-instruct:
+    cmd:
+    - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/llama-3B/completions.csv
+      \\\n  --output_file predictions_model_wise/llama-3B/mapped_predictions.csv \\\
+      \n  --mapping_stats predictions_model_wise/llama-3B/mapping_stats.json \\\n\
+      \  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+    - path: ../../src/mapping.py
+      hash: md5
+      md5: 4e975bad3a8eceb77dba981dd75c35d8
+      size: 12088
+    - path: predictions_model_wise/llama-3B/completions.csv
+      hash: md5
+      md5: 32edb79e6f6af89494647a45ffec3665
+      size: 118674
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        mapping.hyperparameters.alpha: 0.7
+        mapping.hyperparameters.min_cosine_similarity: 0.7
+        mapping.hyperparameters.search: hybrid
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: predictions_model_wise/llama-3B/mapped_predictions.csv
+      hash: md5
+      md5: 2ed916a87773b39618a971a4fe482ecc
+      size: 380196
+    - path: predictions_model_wise/llama-3B/mapping_stats.json
+      hash: md5
+      md5: 4ac8e098649ef0d41d25e60f5113f8b4
+      size: 53
+    - path: predictions_model_wise/llama-3B/removed_mapped_predictions.csv
+      hash: md5
+      md5: b4ab458107bc0bb5fb56c18863499f17
+      size: 7788
+  summarize:
+    cmd:
+    - "python ../../src/summarize_candidates.py \\\n    predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      \\\n    predictions_model_wise/llama-3B/mapped_predictions.csv \\\n  --output_file\
+      \  mapped_predictions.csv\n"
+    deps:
+    - path: ../../src/summarize_candidates.py
+      hash: md5
+      md5: f94dee749ef1a466f79211e8727cbe7a
+      size: 2234
+    - path: predictions_model_wise/llama-3B/mapped_predictions.csv
+      hash: md5
+      md5: 2ed916a87773b39618a971a4fe482ecc
+      size: 380196
+    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      hash: md5
+      md5: 1c488f4c4be7f130b3120ca62fbb43bc
+      size: 343003
+    outs:
+    - path: mapped_predictions.csv
+      hash: md5
+      md5: db31b65b0a20e61195fe505e844aece6
+      size: 514603
+  rank:
+    cmd:
+    - "python ../../src/rank.py \\\n  --dataset_file ../preprocess/validate.csv \\\
+      \n  --predictions_file mapped_predictions.csv \\\n  --output_file ranked_predictions.csv
+      \\\n  --prompt_template_info ../../templates/model_to_template.json \\\n  --prompt_template_dir
+      ../../templates/ \\\n  --params_file ../shared_params.yaml \\\n  --custom_instructions
+      ../../instructions/ranking_instruction03.json\n"
+    deps:
+    - path: ../../instructions/ranking_instruction03.json
+      hash: md5
+      md5: 047e0a86ce86400c1e32d13c4f4c0726
+      size: 276
+    - path: ../../src/rank.py
+      hash: md5
+      md5: 21db298187817969433b34536a093a93
+      size: 13064
+    - path: ../../templates/model_to_template.json
+      hash: md5
+      md5: 57a1fd453632e3418b9d25f9b23a79d8
+      size: 505
+    - path: ../preprocess/validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+    - path: mapped_predictions.csv
+      hash: md5
+      md5: db31b65b0a20e61195fe505e844aece6
+      size: 514603
+    params:
+      ../shared_params.yaml:
+        completion.prompt_template_dir: templates/
+        ranking.instruction: instructions/ranking_instruction03.json
+        ranking.max_confidence: 10
+        ranking.max_suggestions: 100
+        ranking.min_confidence: 0
+        ranking.model: meta-llama/Meta-Llama-3.1-8B-Instruct
+        ranking.score_param: relevance
+        ranking.temperature: 0
+        ranking.threshold_confidence: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: ranked_predictions.csv
+      hash: md5
+      md5: 7f80207b45e3fc8e392bb95c9be0af0a
+      size: 183091
+  train_xgb:
+    cmd:
+    - "python ../../src/train_xgb.py \\\n  predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      \\\n  predictions_model_wise/llama-3B/mapped_predictions.csv \\\n  --ground_truth
+      ../../corpora/ground-truth.arrow \\\n  --train_index ../../corpora/title/validate.arrow
+      \\\n  --ranked_predictions ranked_predictions.csv \\\n  --model_file xgb_model.rds
+      \\\n  --n_rounds 874 \\\n  --interaction_depth 2\\\n  --shrinkage 0.02058179685107834
+      \\\n  --subsample 0.69631089647747 \\\n  --importance_plot xgb_model_feature_importance.png\n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/train_xgb.py
+      hash: md5
+      md5: 773fbc15384fe560ea6339e6ef456f22
+      size: 7666
+    - path: predictions_model_wise/llama-3B/mapped_predictions.csv
+      hash: md5
+      md5: 2ed916a87773b39618a971a4fe482ecc
+      size: 380196
+    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      hash: md5
+      md5: 1c488f4c4be7f130b3120ca62fbb43bc
+      size: 343003
+    - path: ranked_predictions.csv
+      hash: md5
+      md5: 7f80207b45e3fc8e392bb95c9be0af0a
+      size: 183091
+    params:
+      ../shared_params.yaml:
+        train_xgb.hyperparameters.interaction_depth: 2
+        train_xgb.hyperparameters.n_rounds: 874
+        train_xgb.hyperparameters.shrinkage: 0.02058179685107834
+        train_xgb.hyperparameters.subsample: 0.69631089647747
+    outs:
+    - path: xgb_model.rds
+      hash: md5
+      md5: 0d4da1fb5142fd9f9c909e0e945c455f
+      size: 793981
+    - path: xgb_model_feature_importance.png
+      hash: md5
+      md5: 9eb95a665b488e70649600f8d985a1f3
+      size: 140651
+  compute_metrics_modelwise@mistral-7B-0p3:
+    cmd:
+    - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      \\\n  --index ../../corpora/title/validate.arrow \\\n  --ground-truth ../../corpora/ground-truth.arrow
+      \\\n  --res_dir predictions_model_wise/mistral-7B-0p3/ \\\n  --kind title \\\
+      \n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/compute_metrics.R
+      hash: md5
+      md5: 2cbf38abec8026301d53b69c50a3f1d7
+      size: 4157
+    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
+      hash: md5
+      md5: 1c488f4c4be7f130b3120ca62fbb43bc
+      size: 343003
+    params:
+      params.yaml:
+        predict.text_type: title
+    outs:
+    - path: predictions_model_wise/mistral-7B-0p3/scores_at_5_R.yaml
+      hash: md5
+      md5: 6da34707e059c380722009f9a980b26f
+      size: 238
+  compute_metrics_modelwise@llama-3B-instruct:
+    cmd:
+    - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/llama-3B/mapped_predictions.csv
+      \\\n  --index ../../corpora/title/validate.arrow \\\n  --ground-truth ../../corpora/ground-truth.arrow
+      \\\n  --res_dir predictions_model_wise/llama-3B/ \\\n  --kind title \\\n  --n_threads
+      20 \\\n  --set_retrieval_only TRUE \n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/compute_metrics.R
+      hash: md5
+      md5: 2cbf38abec8026301d53b69c50a3f1d7
+      size: 4157
+    - path: predictions_model_wise/llama-3B/mapped_predictions.csv
+      hash: md5
+      md5: 2ed916a87773b39618a971a4fe482ecc
+      size: 380196
+    params:
+      params.yaml:
+        predict.text_type: title
+    outs:
+    - path: predictions_model_wise/llama-3B/scores_at_5_R.yaml
+      hash: md5
+      md5: d4e119f0278f8d1bcaeddf14f5d533f4
+      size: 238

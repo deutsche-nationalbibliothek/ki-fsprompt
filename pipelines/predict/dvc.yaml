@@ -1,0 +1,228 @@
+vars:
+  - ../shared_params.yaml
+  - params.yaml
+
+stages:
+  retrieve:
+    desc: Get the closest examples for each document in the validation set
+    cmd:
+      - >
+        python ../../src/retrieve.py \
+          --input_text_data ${predict.text_data} \
+          --output_file ${retrieve.prompt_file} \
+          --n_examples ${retrieve.n_examples} \
+          --host ${embedding.TEI_port} \
+          --collection_name ${retrieve.weaviate_collection_name}
+    deps:
+      - ../../src/retrieve.py
+      - ${predict.text_data}
+      # this should be the only difference to the train-pipeline
+      - ../train/${retrieve.manifest_out}
+    params:
+      - ../shared_params.yaml:
+        - retrieve.weaviate_collection_name
+        - retrieve.n_examples
+        - embedding.model
+    outs:
+      - ${retrieve.prompt_file}
+
+  complete:
+    foreach: ${completion.models}
+    do:
+      desc: Generate free keywords for a matrix of model x prompt combinations
+      cmd:
+      - mkdir -p predictions_model_wise/${item.short_name}/
+      - >
+        python ../../src/completion.py \
+          --hf_model_name ${item.hf_model_name} \
+          --dataset_file ${predict.text_data} \
+          --completion_file predictions_model_wise/${item.short_name}/${completion.completion_filename} \
+          --prompt_specification ${retrieve.prompt_file} \
+          --prompt_template_info ../../${completion.prompt_template_info} \
+          --prompt_template_dir ../../${completion.prompt_template_dir} \
+          --custom_instructions ../../${completion.custom_instruction} \
+          --params_file ../shared_params.yaml 
+      params:
+        - ../shared_params.yaml:
+          - completion.custom_instruction
+          - completion.vllm.samplingparams.max_new_tokens
+          - completion.vllm.samplingparams.min_new_tokens
+          - completion.vllm.samplingparams.max_total_tokens
+          - completion.vllm.samplingparams.max_chunks
+          - completion.vllm.samplingparams.temperature
+          - completion.prompt_template_dir
+          - vllm.global_samplingparams.presence_penalty
+          - vllm.global_samplingparams.frequency_penalty
+          - vllm.global_samplingparams.repetition_penalty
+          - vllm.global_samplingparams.top_p
+      deps:
+      - ../../src/completion.py
+      - ${predict.text_data}
+      - ${retrieve.prompt_file}
+      - ../../${completion.custom_instruction}
+      - ../../${completion.prompt_template_info}
+      outs:
+      - predictions_model_wise/${item.short_name}/${completion.completion_filename}
+
+  map:
+    foreach: ${completion.models}
+    do:
+      desc: Map keywords to GND subject terms for all models
+      cmd:
+      - > 
+        python ../../src/mapping.py \
+          --completion_file predictions_model_wise/${item.short_name}/${completion.completion_filename} \
+          --output_file predictions_model_wise/${item.short_name}/${mapping.output_file} \
+          --mapping_stats predictions_model_wise/${item.short_name}/mapping_stats.json \
+          --params_file ../shared_params.yaml 
+      params:
+      - ../shared_params.yaml:
+        - vocab.weaviate_collection_name
+        - mapping.hyperparameters.search
+        - mapping.hyperparameters.min_cosine_similarity
+        - mapping.hyperparameters.alpha
+        - embedding.model
+      deps:
+      - ../../src/mapping.py
+      - predictions_model_wise/${item.short_name}/${completion.completion_filename}
+      - ../../${vocab.manifest_out} # this is an indicator that the weaviate collection may have changed
+      outs:
+      - predictions_model_wise/${item.short_name}/${mapping.output_file}
+      - predictions_model_wise/${item.short_name}/removed_mapped_predictions.csv
+      metrics:
+      - predictions_model_wise/${item.short_name}/mapping_stats.json:
+          cache: false
+
+  compute_metrics_modelwise:
+    foreach: ${completion.models}
+    do:
+      desc: Compute metrics for each model
+      cmd:
+        - >
+          Rscript ../../src/compute_metrics.R \
+            --predictions predictions_model_wise/${item.short_name}/${mapping.output_file} \
+            --index ${predict.index} \
+            --ground-truth ../../corpora/ground-truth.arrow \
+            --res_dir predictions_model_wise/${item.short_name}/ \
+            --kind ${predict.text_type} \
+            --n_threads 20 \
+            --set_retrieval_only TRUE 
+      deps:
+        - ../../src/compute_metrics.R
+        - predictions_model_wise/${item.short_name}/${mapping.output_file}
+        - ${predict.index}
+        - ../../corpora/ground-truth.arrow
+      params:
+        - predict.text_type
+      metrics:
+        - predictions_model_wise/${item.short_name}/scores_at_5_R.yaml:
+            cache: false
+
+
+  summarize:
+    desc: Run summarize-stage
+    always_changed: false 
+    cmd:
+    - > 
+      python ../../src/summarize_candidates.py \
+          predictions_model_wise/mistral-7B-0p3/${mapping.output_file} \
+          predictions_model_wise/llama-3B/${mapping.output_file} \
+        --output_file  ${mapping.output_file}
+    deps:
+    - ../../src/summarize_candidates.py
+    - predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
+    - predictions_model_wise/llama-3B/${mapping.output_file}
+    outs:
+    - ${mapping.output_file}
+
+
+  rank:
+    desc: Run rank-stage for all ensemble-strategies
+    cmd:
+    - > 
+      python ../../src/rank.py \
+        --dataset_file ${predict.text_data} \
+        --predictions_file ${mapping.output_file} \
+        --output_file ${ranking.output_file} \
+        --prompt_template_info ../../${completion.prompt_template_info} \
+        --prompt_template_dir ../../${completion.prompt_template_dir} \
+        --params_file ../shared_params.yaml \
+        --custom_instructions ../../${ranking.instruction}
+    params:
+    - ../shared_params.yaml:
+      - vllm.global_samplingparams.presence_penalty
+      - vllm.global_samplingparams.frequency_penalty
+      - vllm.global_samplingparams.repetition_penalty
+      - vllm.global_samplingparams.top_p
+      - ranking.model
+      - ranking.temperature
+      - ranking.instruction
+      - ranking.max_suggestions
+      - ranking.min_confidence
+      - ranking.threshold_confidence
+      - ranking.max_confidence
+      - ranking.score_param
+      - completion.prompt_template_dir
+    deps:
+    - ../../src/rank.py
+    - ${mapping.output_file}
+    - ${predict.text_data}
+    - ../../${ranking.instruction}
+    - ../../${completion.prompt_template_info}
+    outs:
+    - ${ranking.output_file}
+
+  predict_xgb:
+    desc: Predict ranking with XGBoost model
+    cmd:
+      - >
+        python ../../src/predict_xgb.py \
+          predictions_model_wise/mistral-7B-0p3/${mapping.output_file} \
+          predictions_model_wise/llama-3B/${mapping.output_file} \
+          --test_index ${predict.index} \
+          --ranked_predictions ${ranking.output_file} \
+          --model_file ../train/${train_xgb.model_file} \
+          --top_k ${predict_xgb.top_k} \
+          --out_csv ${predict_xgb.output_file_csv}
+    params:
+      - predict_xgb.top_k
+    deps:
+      - ../../src/predict_xgb.py
+      - ../train/${train_xgb.model_file}
+      - ${predict.index}
+      - predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
+      - predictions_model_wise/llama-3B/${mapping.output_file}
+      - ${ranking.output_file}
+    outs:
+      - ${predict_xgb.output_file_csv}
+
+  compute_metrics:
+    cmd:
+      - mkdir -p ${predict.eval_dir}
+      - >
+        Rscript ../../src/compute_metrics.R \
+          --predictions ${predict_xgb.output_file_csv} \
+          --index ${predict.index} \
+          --ground-truth ../../corpora/ground-truth.arrow \
+          --res_dir ${predict.eval_dir} \
+          --kind ${predict.text_type} \
+          --n_threads 20
+    deps:
+      - ../../src/compute_metrics.R
+      - ${predict_xgb.output_file_csv}
+      - ${predict.index}
+      - ../../corpora/ground-truth.arrow
+    params:
+      - predict.text_type
+    outs:
+      - ${predict.eval_dir}/pr_curve_plot.svg:
+          cache: false
+    plots:
+      - ${predict.eval_dir}/pr_curve.csv:
+          x: recall
+          y: precision
+    metrics:
+      - ${predict.eval_dir}/pr_auc.json:
+          cache: false
+      - ${predict.eval_dir}/scores_at_5_R.yaml:
+          cache: false

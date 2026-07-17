@@ -1,0 +1,43 @@
+vars:
+  - ../shared_params.yaml
+  - params.yaml
+
+stages:
+  extract_prefLabels:
+    frozen: false
+    wdir: ../../
+    desc: Extract the preferred labels from the vocab ttl file and store them in a csv file for later use.
+    cmd:
+      - >
+        python src/extract_prefLabels.py \
+          --ttl_file ${vocab.ttl_file} \
+          --csv_output ${vocab.prefLabels_csv}
+    deps:
+      - src/extract_prefLabels.py
+      - src/create_vocab_collection.py
+      - ${vocab.ttl_file}
+    params:
+      - pipelines/shared_params.yaml:
+        - vocab.prefLabels_csv
+    outs:
+      - ${vocab.prefLabels_csv}
+
+  preprocess:
+    foreach: ${datasets}
+    do:
+      cmd:
+        - > 
+          python ../../src/preprocess.py \
+            --tsv_gz_file ${item.tsv_gz_file} \
+            --index_file ${item.index_file} \
+            --gnd_pref_labels ../../${vocab.prefLabels_csv} \
+            --csv_output ${item.output}
+      deps:
+        - ../../src/preprocess.py
+        - ../../src/data_adapters
+        - ${item.tsv_gz_file}
+        - ${item.index_file}
+        - ../../${vocab.prefLabels_csv}
+      outs:
+        - ${item.output}
+

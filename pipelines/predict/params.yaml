@@ -1,0 +1,11 @@
+predict:
+  # where is the actual text data for indexing stored? 
+  text_data: ../preprocess/test.csv
+  # this is a list of the document IDs in the text_data file in the order they appear in the file
+  index: ../../corpora/title/test.arrow
+  text_type: title
+  eval_dir: eval/
+
+predict_xgb:
+  top_k: 100
+  output_file_csv: predictions_xgb.csv

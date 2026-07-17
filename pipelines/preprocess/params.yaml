@@ -1,0 +1,14 @@
+datasets:
+  title_train:
+    tsv_gz_file: ../../corpora/title/train.tsv.gz
+    index_file: ../../corpora/title/train.arrow
+    output: train.csv
+  title_validate:
+    tsv_gz_file: ../../corpora/title/validate.tsv.gz
+    index_file: ../../corpora/title/validate.arrow
+    output: validate.csv
+  title_test:
+    tsv_gz_file: ../../corpora/title/test.tsv.gz
+    index_file: ../../corpora/title/test.arrow
+    output: test.csv
+

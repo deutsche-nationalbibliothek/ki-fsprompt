@@ -1,0 +1,88 @@
+vocab:
+  weaviate_collection_name: ki_fsprompt_vocab
+  manifest_out: create_vocab_collection_manifest.json
+  ttl_file: vocab/GND-Subjects-plus.ttl
+  use_altLabels: true
+  prefLabels_csv: vocab/prefLabels.csv
+
+embedding:
+  model: BAAI/bge-m3 # this needs to be changed in the TEI docker configuration as well
+  TEI_port: 8090 # this needs to be changed in the TEI docker configuration as well
+  batch_size: 300  # for embedding model processing of vocab
+
+retrieve:
+  weaviate_collection_name: title_train
+  manifest_out: create_train_collection_manifest.json
+  # n_examples: the number of closest examples to retrieve for each document in the test set
+  n_examples: 5
+  # where to store the retrieved examples for each document in the test/ validate set
+  prompt_file: retrieved_examples.csv
+
+vllm:
+  engineargs:
+    # task: generate
+    gpu_memory_utilization: 0.95
+    tensor_parallel_size: 1
+    dtype: auto
+    enforce_eager: true
+    max_model_len: 15000
+  global_samplingparams:
+    presence_penalty: 0
+    frequency_penalty: 0
+    repetition_penalty: 1
+    top_p: 1
+
+completion:
+  # this is a recycled name used for the output file of any completion run 
+  completion_filename: completions.csv
+  # how many docs to process in one pass of inference with vllm
+  prompt_template_info: templates/model_to_template.json
+  prompt_template_dir: templates/
+  custom_instruction: instructions/instruction03.txt
+  vllm:
+    samplingparams:
+      max_new_tokens: 256
+      min_new_tokens: 0
+      max_total_tokens: 15000
+      max_chunks: 1
+      temperature: 0
+  models:
+    mistral-7B-0p3:
+      hf_model_name: mistralai/Mistral-7B-Instruct-v0.3
+      short_name: mistral-7B-0p3
+    llama-3B-instruct:
+      hf_model_name: meta-llama/Llama-3.2-3B-Instruct
+      short_name: llama-3B
+
+mapping:
+  output_file: mapped_predictions.csv
+  # how many parallel clients query weaviate 
+  n_processes: 20
+  # the output will contain a column "score" which is either the cosine similarity or the hybrid score
+  score_param: hybrid_score # choice: cosine_similarity, hybrid_score
+  hyperparameters:
+    search: hybrid        # options: hybrid, vector
+    min_cosine_similarity: 0.7 # threshold for vector search
+    alpha: 0.7       # 0 - 1
+
+ranking:
+  model: meta-llama/Meta-Llama-3.1-8B-Instruct
+  score_param: relevance # choice: relevance, score, cosine_similarity, hybrid_score
+  temperature: 0
+  instruction: instructions/ranking_instruction03.json
+  max_suggestions: 100
+  min_confidence: 0
+  threshold_confidence: 0
+  max_confidence: 10
+  output_file: ranked_predictions.csv
+
+train_xgb:
+  model_file: xgb_model.rds
+  importance_plot: xgb_model_feature_importance.png
+  n_jobs: 40
+  hyperparameters:
+    n_rounds: 874
+    interaction_depth: 2
+    shrinkage: 0.02058179685107834
+    subsample: 0.69631089647747
+    verbose: true

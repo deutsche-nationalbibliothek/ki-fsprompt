@@ -1,0 +1,123 @@
+schema: '2.0'
+stages:
+  extract_prefLabels:
+    cmd:
+    - "python src/extract_prefLabels.py \\\n  --ttl_file vocab/GND-Subjects-plus.ttl
+      \\\n  --csv_output vocab/prefLabels.csv\n"
+    deps:
+    - path: src/create_vocab_collection.py
+      hash: md5
+      md5: 3517b26e303a4ae7c805d9f10164c4f6
+      size: 9187
+    - path: src/extract_prefLabels.py
+      hash: md5
+      md5: f92a6d58d9af400c67a2f48553d3a3fc
+      size: 1885
+    - path: vocab/GND-Subjects-plus.ttl
+      hash: md5
+      md5: c53bbe604b605ab152749a970a353231
+      size: 70495107
+    params:
+      pipelines/shared_params.yaml:
+        vocab.prefLabels_csv: vocab/prefLabels.csv
+    outs:
+    - path: vocab/prefLabels.csv
+      hash: md5
+      md5: d5ca86e8b55a94ee46f013bf4381456d
+      size: 9940159
+  preprocess@title_train:
+    cmd:
+    - "python ../../src/preprocess.py \\\n  --tsv_gz_file ../../corpora/title/train.tsv.gz
+      \\\n  --index_file ../../corpora/title/train.arrow \\\n  --gnd_pref_labels ../../vocab/prefLabels.csv
+      \\\n  --csv_output train.csv\n"
+    deps:
+    - path: ../../corpora/title/train.arrow
+      hash: md5
+      md5: 05253401da8ae1c79d15d9863cc6a017
+      size: 507410
+    - path: ../../corpora/title/train.tsv.gz
+      hash: md5
+      md5: 20324eb87bc7bfb471bc1c54c8c76010
+      size: 828221
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 75b294e1759d1001649555da7d43644e.dir
+      size: 29470
+      nfiles: 15
+    - path: ../../src/preprocess.py
+      hash: md5
+      md5: b2919a7b2188b108dd0bc4a7cfeda976
+      size: 2521
+    - path: ../../vocab/prefLabels.csv
+      hash: md5
+      md5: d5ca86e8b55a94ee46f013bf4381456d
+      size: 9940159
+    outs:
+    - path: train.csv
+      hash: md5
+      md5: 38bf27a271bf53faf79203f9a1c4cf5b
+      size: 2728392
+  preprocess@title_validate:
+    cmd:
+    - "python ../../src/preprocess.py \\\n  --tsv_gz_file ../../corpora/title/validate.tsv.gz
+      \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --gnd_pref_labels
+      ../../vocab/prefLabels.csv \\\n  --csv_output validate.csv\n"
+    deps:
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../corpora/title/validate.tsv.gz
+      hash: md5
+      md5: 05ec2c4658451411e0a71ccf379e67ef
+      size: 74512
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 75b294e1759d1001649555da7d43644e.dir
+      size: 29470
+      nfiles: 15
+    - path: ../../src/preprocess.py
+      hash: md5
+      md5: b2919a7b2188b108dd0bc4a7cfeda976
+      size: 2521
+    - path: ../../vocab/prefLabels.csv
+      hash: md5
+      md5: d5ca86e8b55a94ee46f013bf4381456d
+      size: 9940159
+    outs:
+    - path: validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+  preprocess@title_test:
+    cmd:
+    - "python ../../src/preprocess.py \\\n  --tsv_gz_file ../../corpora/title/test.tsv.gz
+      \\\n  --index_file ../../corpora/title/test.arrow \\\n  --gnd_pref_labels ../../vocab/prefLabels.csv
+      \\\n  --csv_output test.csv\n"
+    deps:
+    - path: ../../corpora/title/test.arrow
+      hash: md5
+      md5: 12895b886ef1dbf9609dd26a392a7c71
+      size: 53778
+    - path: ../../corpora/title/test.tsv.gz
+      hash: md5
+      md5: 2a92dd04e28def95307a468d98beaf49
+      size: 81029
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 75b294e1759d1001649555da7d43644e.dir
+      size: 29470
+      nfiles: 15
+    - path: ../../src/preprocess.py
+      hash: md5
+      md5: b2919a7b2188b108dd0bc4a7cfeda976
+      size: 2521
+    - path: ../../vocab/prefLabels.csv
+      hash: md5
+      md5: d5ca86e8b55a94ee46f013bf4381456d
+      size: 9940159
+    outs:
+    - path: test.csv
+      hash: md5
+      md5: 968ec0b8c5d9f3517061be08f3e7f7c8
+      size: 258607

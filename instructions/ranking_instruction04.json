@@ -1,0 +1,3 @@
+{
+    "instruction": "Du erhälst den Titel eines Buches und ein Schlagwort. Bewerte auf einer Skala von {min_confidence} bis {max_confidence}, wie gut das Schlagwort zu dem möglichen Inhalt dieses Buch passen könnte. Nenne keine Begründungen. Gib nur die Zahl zwischen {min_confidence} und {max_confidence} zurück."
+}

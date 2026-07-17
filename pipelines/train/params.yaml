@@ -1,0 +1,24 @@
+train:
+  # where is the actual text data for training stored? 
+  text_data: ../preprocess/train.csv
+  # the name of the weaviate collection to store the training data for retrieval
+  # text_type: title or ft
+  # `ft` tells the preprocessing to chunk the text data into smaller pieces for embedding and storage in weaviate
+  text_type: title
+  # chunk_size: the number of characters to chunk the text into for embedding and storage in weaviate
+  chunk_size: 512
+  # batch_size: the number of documents to process in a batch for embedding and storage in weaviate
+  batch_size: 100
+  # dvc-tracked output manifest for this stage run
+
+predict:
+   # where is the actual text data for indexing stored? 
+  text_data: ../preprocess/validate.csv
+  index: ../../corpora/title/validate.arrow
+  text_type: title
+# retrieve:
+#   input_text_data: ../preprocess/validate.csv
+#   # n_examples: the number of closest examples to retrieve for each document in the test set
+#   n_examples: 5
+#   prompt_file: validate_retrieved_examples.csv
+

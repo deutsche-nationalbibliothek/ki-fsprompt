@@ -1,0 +1,6 @@
+md5: b3305a0eb232a7082a3addb0bd1e06d3
+outs:
+- md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+  size: 3487178
+  hash: md5
+  path: ground-truth.arrow
