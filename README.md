@@ -84,7 +84,8 @@ to configure the pipeline.
 
 ## Data input
 
-This project is run with a dataset of German open access dissertations
+This project is run with a dataset of German open access dissertations. The
+data is currently not at public disclosure. 
 
 ## Citation
 
