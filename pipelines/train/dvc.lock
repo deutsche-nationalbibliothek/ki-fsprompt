@@ -223,14 +223,14 @@ stages:
       \\\n  --mapping_stats predictions_model_wise/mistral-7B-0p3/mapping_stats.json
       \\\n  --params_file ../shared_params.yaml \n"
     deps:
-    - path: ../../create_vocab_collection_manifest.json
-      hash: md5
-      md5: c4fedf005977e6e9d6f76d91d5a8e825
-      size: 256
     - path: ../../src/mapping.py
       hash: md5
       md5: 4e975bad3a8eceb77dba981dd75c35d8
       size: 12088
+    - path: ../../vocab/create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
     - path: predictions_model_wise/mistral-7B-0p3/completions.csv
       hash: md5
       md5: 5065e9d7c19bb670d84e95842fd18553
@@ -245,16 +245,16 @@ stages:
     outs:
     - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
       hash: md5
-      md5: 1c488f4c4be7f130b3120ca62fbb43bc
-      size: 343003
+      md5: 92220381c59ef507ce3126eeddfa3654
+      size: 342999
     - path: predictions_model_wise/mistral-7B-0p3/mapping_stats.json
       hash: md5
       md5: 8e1424bedda59692b7c7a6c6e914dcc5
       size: 53
     - path: predictions_model_wise/mistral-7B-0p3/removed_mapped_predictions.csv
       hash: md5
-      md5: 477e2e6242302e0745a3a7efc515ebf4
-      size: 6641
+      md5: bcb8b049221ea15efb600337bac64717
+      size: 6644
   map@llama-3B-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/llama-3B/completions.csv
@@ -262,14 +262,14 @@ stages:
       \n  --mapping_stats predictions_model_wise/llama-3B/mapping_stats.json \\\n\
       \  --params_file ../shared_params.yaml \n"
     deps:
-    - path: ../../create_vocab_collection_manifest.json
-      hash: md5
-      md5: c4fedf005977e6e9d6f76d91d5a8e825
-      size: 256
     - path: ../../src/mapping.py
       hash: md5
       md5: 4e975bad3a8eceb77dba981dd75c35d8
       size: 12088
+    - path: ../../vocab/create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
     - path: predictions_model_wise/llama-3B/completions.csv
       hash: md5
       md5: 32edb79e6f6af89494647a45ffec3665
@@ -284,16 +284,16 @@ stages:
     outs:
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: 2ed916a87773b39618a971a4fe482ecc
-      size: 380196
+      md5: 019837ab61aa66d4bb651c2ffbe22696
+      size: 380234
     - path: predictions_model_wise/llama-3B/mapping_stats.json
       hash: md5
       md5: 4ac8e098649ef0d41d25e60f5113f8b4
       size: 53
     - path: predictions_model_wise/llama-3B/removed_mapped_predictions.csv
       hash: md5
-      md5: b4ab458107bc0bb5fb56c18863499f17
-      size: 7788
+      md5: 9f4d53f4c8f7af2639642e0e8bbe63dc
+      size: 7784
   summarize:
     cmd:
     - "python ../../src/summarize_candidates.py \\\n    predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
@@ -306,17 +306,17 @@ stages:
       size: 2234
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: 2ed916a87773b39618a971a4fe482ecc
-      size: 380196
+      md5: 019837ab61aa66d4bb651c2ffbe22696
+      size: 380234
     - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
       hash: md5
-      md5: 1c488f4c4be7f130b3120ca62fbb43bc
-      size: 343003
+      md5: 92220381c59ef507ce3126eeddfa3654
+      size: 342999
     outs:
     - path: mapped_predictions.csv
       hash: md5
-      md5: db31b65b0a20e61195fe505e844aece6
-      size: 514603
+      md5: 9964df6e9e1e2a4507aa801b21a77fa9
+      size: 514652
   rank:
     cmd:
     - "python ../../src/rank.py \\\n  --dataset_file ../preprocess/validate.csv \\\
@@ -343,8 +343,8 @@ stages:
       size: 236928
     - path: mapped_predictions.csv
       hash: md5
-      md5: db31b65b0a20e61195fe505e844aece6
-      size: 514603
+      md5: 9964df6e9e1e2a4507aa801b21a77fa9
+      size: 514652
     params:
       ../shared_params.yaml:
         completion.prompt_template_dir: templates/
@@ -363,8 +363,8 @@ stages:
     outs:
     - path: ranked_predictions.csv
       hash: md5
-      md5: 7f80207b45e3fc8e392bb95c9be0af0a
-      size: 183091
+      md5: 51077f6135e3b779325c81962b7fc074
+      size: 183092
   train_xgb:
     cmd:
     - "python ../../src/train_xgb.py \\\n  predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
@@ -388,16 +388,16 @@ stages:
       size: 7666
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: 2ed916a87773b39618a971a4fe482ecc
-      size: 380196
+      md5: 019837ab61aa66d4bb651c2ffbe22696
+      size: 380234
     - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
       hash: md5
-      md5: 1c488f4c4be7f130b3120ca62fbb43bc
-      size: 343003
+      md5: 92220381c59ef507ce3126eeddfa3654
+      size: 342999
     - path: ranked_predictions.csv
       hash: md5
-      md5: 7f80207b45e3fc8e392bb95c9be0af0a
-      size: 183091
+      md5: 51077f6135e3b779325c81962b7fc074
+      size: 183092
     params:
       ../shared_params.yaml:
         train_xgb.hyperparameters.interaction_depth: 2
@@ -407,12 +407,12 @@ stages:
     outs:
     - path: xgb_model.rds
       hash: md5
-      md5: 0d4da1fb5142fd9f9c909e0e945c455f
-      size: 793981
+      md5: 9e5f6b27eed59ce571cc5f21c803b133
+      size: 794049
     - path: xgb_model_feature_importance.png
       hash: md5
-      md5: 9eb95a665b488e70649600f8d985a1f3
-      size: 140651
+      md5: 9e8a2a4b7b847a7c03a41d979ef20737
+      size: 140707
   compute_metrics_modelwise@mistral-7B-0p3:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
