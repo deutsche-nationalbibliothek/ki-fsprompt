@@ -1,6 +1,6 @@
 vocab:
   weaviate_collection_name: ki_fsprompt_vocab
-  manifest_out: create_vocab_collection_manifest.json
+  manifest_out: vocab/create_vocab_collection_manifest.json
   ttl_file: vocab/GND-Subjects-plus.ttl
   use_altLabels: true
   prefLabels_csv: vocab/prefLabels.csv

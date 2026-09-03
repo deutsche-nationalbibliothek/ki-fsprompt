@@ -5,7 +5,7 @@ stages:
     - "python ../../src/create_vocab_collection.py \\\n  --ttl_file ../../vocab/GND-Subjects-plus.ttl
       \\\n  --collection_name ki_fsprompt_vocab \\\n  --model_name BAAI/bge-m3 \\\n\
       \  --overwrite true\\\n  --TEI_port 8090 \\\n  --use_altLabels true \\\n  --manifest_out
-      ../../create_vocab_collection_manifest.json\n"
+      ../../vocab/create_vocab_collection_manifest.json\n"
     deps:
     - path: ../../src/create_vocab_collection.py
       hash: md5
@@ -23,11 +23,11 @@ stages:
       ../shared_params.yaml:
         embedding.batch_size: 300
         embedding.model: BAAI/bge-m3
-        vocab.manifest_out: create_vocab_collection_manifest.json
+        vocab.manifest_out: vocab/create_vocab_collection_manifest.json
         vocab.use_altLabels: true
         vocab.weaviate_collection_name: ki_fsprompt_vocab
     outs:
-    - path: ../../create_vocab_collection_manifest.json
+    - path: ../../vocab/create_vocab_collection_manifest.json
       hash: md5
       md5: c4fedf005977e6e9d6f76d91d5a8e825
       size: 256
