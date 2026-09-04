@@ -52,9 +52,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def extract_model_name(path: str) -> str:
-    pattern = re.compile(r"([a-zA-Z0-9_\-]+)/[a-zA-Z0-9_\-]+/mapped_predictions\.csv$")
-    match = pattern.search(path)
-    raw_name = match.group(1) if match else Path(path).parent.name
+    raw_name = Path(path).parent.name
     return re.sub(r"[/-]", "_", raw_name)
 
 
