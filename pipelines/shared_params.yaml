@@ -53,19 +53,22 @@ completion:
     llama-3B-instruct:
       hf_model_name: meta-llama/Llama-3.2-3B-Instruct
       short_name: llama-3B
-    qwen-2p5-7B-instruct:
-      hf_model_name: Qwen/Qwen2.5-7B-Instruct
-      short_name: qwen-2p5-7B
-    qwen-2p5-3B-instruct:
-      hf_model_name: Qwen/Qwen2.5-3B-Instruct
-      short_name: qwen-2p5-3B
+    ministral-3-8B-instruct:
+      hf_model_name: mistralai/Ministral-3-8B-Instruct-2512
+      short_name: ministral-3-8B-instruct
+    ministral-3-14B-instruct:
+      hf_model_name: mistralai/Ministral-3-14B-Instruct-2512
+      short_name: ministral-3-14B-instruct
+    qwen-3p5-35B-A3B:
+      hf_model_name: Qwen/Qwen3.5-35B-A3B
+      short_name: qwen-3p5-35B-A3B
     qwen-3-4B:
       hf_model_name: Qwen/Qwen3-4B
       short_name: qwen-3-4B
       # gated repo
-    # gemma-3-4B-it:
-    #   hf_model_name: google/gemma-3-4b-it
-    #   short_name: gemma-3-4B
+    gemma-4-26B-A4B-it:
+      hf_model_name: google/gemma-4-26B-A4B-it
+      short_name: gemma-4-26B-A4B-it
     teuken-7B-instruct:
       hf_model_name: openGPT-X/Teuken-7B-instruct-research-v0.4
       short_name: teuken-7B
