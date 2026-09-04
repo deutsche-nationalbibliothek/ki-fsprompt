@@ -92,6 +92,14 @@ class LLMCompletion:
         explicit_tokenizer_mode = self.vllm_engineargs.get("tokenizer_mode")
         auto_tokenizer_mode = "mistral" if model_id.startswith("mistralai/") else "auto"
         selected_tokenizer_mode = explicit_tokenizer_mode or auto_tokenizer_mode
+        if model_id.startswith("mistralai/"):
+            optional_engineargs = {
+                "config_format": "mistral",
+                "load_format": "mistral",
+                "reasoning_parser": "mistral",
+            }
+        else:
+            optional_engineargs = {}
 
         self.vllm_engineargs = EngineArgs(
             model=self.hf_model_name,
@@ -113,6 +121,7 @@ class LLMCompletion:
                 ]
                 else None
             ),
+            **optional_engineargs,
         )
 
         keyword_schema = {
