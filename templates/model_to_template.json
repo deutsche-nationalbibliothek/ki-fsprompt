@@ -10,8 +10,14 @@
     "Qwen/Qwen2.5-7B-Instruct": "chatml.json",
     "Qwen/Qwen2.5-3B-Instruct": "chatml.json",
     "Qwen/Qwen3-4B": "chatml.json",
+    "Qwen/Qwen3.5-35B-A3B": "chatml.json",
+    "mistralai/Ministral-3-8B-Instruct-2512": "chatml.json",
+    "mistralai/Ministral-3-14B-Instruct-2512": "chatml.json",
+    "mistralai/Ministral-3-14B-Reasoning-2512": "chatml.json",
+    "google/gemma-4-26B-A4B-it": "gemma.json",
     "google/gemma-3-4b-it": "gemma.json",
     "openGPT-X/Teuken-7B-instruct-research-v0.4": "teuken.json",
     "occiglot/occiglot-7b-eu5-instruct": "chatml.json",
-    "microsoft/Phi-3.5-mini-instruct": "phi.json"
+    "microsoft/Phi-3.5-mini-instruct": "phi.json",
+    "swiss-ai/Apertus-8B-Instruct-2509": "chatml.json"
 }

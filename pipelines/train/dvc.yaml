@@ -189,6 +189,7 @@ stages:
           predictions_model_wise/teuken-7B/${mapping.output_file} \
           predictions_model_wise/occiglot-7B/${mapping.output_file} \
           predictions_model_wise/phi-3p5-mini/${mapping.output_file} \
+          predictions_model_wise/apertus-8B/${mapping.output_file} \
         --output_file  ${mapping.output_file}
     deps:
     - ../../src/summarize_candidates.py
@@ -202,6 +203,7 @@ stages:
     - predictions_model_wise/teuken-7B/${mapping.output_file}
     - predictions_model_wise/occiglot-7B/${mapping.output_file}
     - predictions_model_wise/phi-3p5-mini/${mapping.output_file}
+    - predictions_model_wise/apertus-8B/${mapping.output_file}
     outs:
     - ${mapping.output_file}
 
@@ -257,6 +259,7 @@ stages:
           predictions_model_wise/teuken-7B/${mapping.output_file} \
           predictions_model_wise/occiglot-7B/${mapping.output_file} \
           predictions_model_wise/phi-3p5-mini/${mapping.output_file} \
+          predictions_model_wise/apertus-8B/${mapping.output_file} \
           --ground_truth ../../corpora/ground-truth.arrow \
           --train_index ../../corpora/title/validate.arrow \
           --ranked_predictions ${ranking.output_file} \
@@ -287,6 +290,7 @@ stages:
       - predictions_model_wise/teuken-7B/${mapping.output_file}
       - predictions_model_wise/occiglot-7B/${mapping.output_file}
       - predictions_model_wise/phi-3p5-mini/${mapping.output_file}
+      - predictions_model_wise/apertus-8B/${mapping.output_file}
     outs:
       - ${train_xgb.model_file}
       - ${train_xgb.importance_plot}:

@@ -78,6 +78,9 @@ completion:
     phi-3p5-mini-instruct:
       hf_model_name: microsoft/Phi-3.5-mini-instruct
       short_name: phi-3p5-mini
+    apertus-8B:
+      hf_model_name: swiss-ai/Apertus-8B-Instruct-2509
+      short_name: apertus-8B
 
 mapping:
   output_file: mapped_predictions.csv
