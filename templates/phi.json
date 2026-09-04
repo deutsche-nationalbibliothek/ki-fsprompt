@@ -1,0 +1,6 @@
+{
+    "instruction": "<|system|>\n{custom_instruction}<|end|>\n",
+    "example": "<|user|>\n{text}<|end|>\n",
+    "keywords": "<|assistant|>\n{keywords}<|end|>\n",
+    "test_item": "<|user|>\n{text}<|end|>\n<|assistant|>\n"
+}

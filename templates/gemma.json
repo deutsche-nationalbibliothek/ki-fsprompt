@@ -1,0 +1,6 @@
+{
+    "instruction": "<start_of_turn>user\n{custom_instruction}\n",
+    "example": "{text}<end_of_turn>\n<start_of_turn>model\n",
+    "keywords": "{keywords}<end_of_turn>\n<start_of_turn>user\n",
+    "test_item": "{text}<end_of_turn>\n<start_of_turn>model\n"
+}
