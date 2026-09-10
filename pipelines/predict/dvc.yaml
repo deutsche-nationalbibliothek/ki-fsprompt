@@ -157,8 +157,6 @@ stages:
         --dataset_file ${predict.text_data} \
         --predictions_file ${mapping.output_file} \
         --output_file ${ranking.output_file} \
-        --prompt_template_info ../../${completion.prompt_template_info} \
-        --prompt_template_dir ../../${completion.prompt_template_dir} \
         --params_file ../shared_params.yaml \
         --custom_instructions ../../${ranking.instruction}
     params:
@@ -175,13 +173,14 @@ stages:
       - ranking.threshold_confidence
       - ranking.max_confidence
       - ranking.score_param
-      - completion.prompt_template_dir
+      - ranking.enable_thinking
+      - ranking.reasoning_parser
+      - ranking.max_reasoning_tokens
     deps:
     - ../../src/rank.py
     - ${mapping.output_file}
     - ${predict.text_data}
     - ../../${ranking.instruction}
-    - ../../${completion.prompt_template_info}
     outs:
     - ${ranking.output_file}
 
