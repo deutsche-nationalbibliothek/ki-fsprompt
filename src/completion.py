@@ -58,8 +58,6 @@ class LLMCompletion:
         prompt_specification: str,
         completion_file: str = "completion.csv",
         params_file: str = "params.yaml",
-        prompt_template_info: str | None = None,
-        prompt_template_dir: str | None = None,
         custom_instructions: str | None = None,
     ):
         """Initializes the LLMCompletion class.
@@ -92,14 +90,10 @@ class LLMCompletion:
         explicit_tokenizer_mode = self.vllm_engineargs.get("tokenizer_mode")
         auto_tokenizer_mode = "mistral" if model_id.startswith("mistralai/") else "auto"
         selected_tokenizer_mode = explicit_tokenizer_mode or auto_tokenizer_mode
+        optional_engineargs = {}
         if model_id.startswith("mistralai/"):
-            optional_engineargs = {
-                "config_format": "mistral",
-                "load_format": "mistral",
-                "reasoning_parser": "mistral",
-            }
-        else:
-            optional_engineargs = {}
+            optional_engineargs["config_format"] = "mistral"
+            optional_engineargs["load_format"] = "mistral"
 
         self.vllm_engineargs = EngineArgs(
             model=self.hf_model_name,
@@ -178,15 +172,9 @@ class LLMCompletion:
         with open(self.instruction_file, encoding="utf-8") as f:
             self.custom_instruction = f.read()
         self.prompt_file = prompt_specification
-        self.prompt_template_info = prompt_template_info
-        self.prompt_template_dir = prompt_template_dir
-        with open(self.prompt_template_info) as f:
-            content = json.load(f)
-            self.prompt_template_file = content[self.hf_model_name]
         self.prompt_builder = IndividualPromptBuilder(
             self.prompt_file,
             self.custom_instruction,
-            os.path.join(self.prompt_template_dir, self.prompt_template_file),
             self.debug,
         )
 
@@ -249,12 +237,27 @@ class LLMCompletion:
         doc_ids = []
         for _, row in documents.iterrows():
             row_content = row.text
-            prompt_frame = self.prompt_builder.build_prompt(row.doc_id)
-            prompt_length = len(self.tokenizer(prompt_frame)["input_ids"])
-            free_tokens = self.max_total_tokens - self.max_new_tokens - prompt_length
+            empty_messages = self.prompt_builder.build_messages(row.doc_id, "")
+            # include the assistant-turn prefix so the truncation budget matches the true rendered prompt
+            # enable_thinking=False keeps output JSON-only; templates without this kwarg ignore it
+            empty_prompt_length = len(
+                self.tokenizer.apply_chat_template(
+                    empty_messages,
+                    tokenize=True,
+                    add_generation_prompt=True,
+                    enable_thinking=False,
+                )
+            )
+            free_tokens = self.max_total_tokens - self.max_new_tokens - empty_prompt_length
             tokens = self.tokenizer(row_content)["input_ids"][:free_tokens]
             chunk = self.tokenizer.decode(tokens)
-            prompt = prompt_frame.replace("{text}", chunk)
+            messages = self.prompt_builder.build_messages(row.doc_id, chunk)
+            prompt = self.tokenizer.apply_chat_template(
+                messages,
+                tokenize=False,
+                add_generation_prompt=True,
+                enable_thinking=False,
+            )
             prompts.append(prompt)
             doc_ids.append(row.doc_id)
 
@@ -342,20 +345,6 @@ def execute():
         "--params_file", help="Path to the params file", type=str, required=True
     )
     parser.add_argument(
-        "--prompt_template_info",
-        help="Optional override for completion.prompt_template_info",
-        type=str,
-        required=False,
-        default=None,
-    )
-    parser.add_argument(
-        "--prompt_template_dir",
-        help="Optional override for completion.prompt_template_dir",
-        type=str,
-        required=False,
-        default=None,
-    )
-    parser.add_argument(
         "--custom_instructions",
         help="Optional override for completion.custom_instruction",
         type=str,
@@ -370,8 +359,6 @@ def execute():
         prompt_specification=args.prompt_specification,
         completion_file=args.completion_file,
         params_file=args.params_file,
-        prompt_template_info=args.prompt_template_info,
-        prompt_template_dir=args.prompt_template_dir,
         custom_instructions=args.custom_instructions,
     )
 
