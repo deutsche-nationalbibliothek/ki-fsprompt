@@ -344,9 +344,7 @@ stages:
     cmd:
     - "python ../../src/rank.py \\\n  --dataset_file ../preprocess/validate.csv \\\
       \n  --predictions_file mapped_predictions.csv \\\n  --output_file ranked_predictions.csv
-      \\\n  --prompt_template_info ../../templates/model_to_template.json \\\n  --prompt_template_dir
-      ../../templates/ \\\n  --params_file ../shared_params.yaml \\\n  --custom_instructions
-      ../../instructions/ranking_instruction03.json\n"
+      \\\n  --params_file ../shared_params.yaml \\\n  --custom_instructions ../../instructions/ranking_instruction03.json\n"
     deps:
     - path: ../../instructions/ranking_instruction03.json
       hash: md5
@@ -354,12 +352,8 @@ stages:
       size: 276
     - path: ../../src/rank.py
       hash: md5
-      md5: 21db298187817969433b34536a093a93
-      size: 13064
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: b7f331cb82d40a100c240527d5e10285
+      size: 13579
     - path: ../preprocess/validate.csv
       hash: md5
       md5: a1c6705d8c50e108848b39a8f7d0af6a
@@ -370,12 +364,14 @@ stages:
       size: 1231034
     params:
       ../shared_params.yaml:
-        completion.prompt_template_dir: templates/
+        ranking.enable_thinking: false
         ranking.instruction: instructions/ranking_instruction03.json
         ranking.max_confidence: 10
+        ranking.max_reasoning_tokens: 512
         ranking.max_suggestions: 100
         ranking.min_confidence: 0
-        ranking.model: meta-llama/Meta-Llama-3.1-8B-Instruct
+        ranking.model: Qwen/Qwen3.8-27B
+        ranking.reasoning_parser: None
         ranking.score_param: relevance
         ranking.temperature: 0
         ranking.threshold_confidence: 0
@@ -386,7 +382,7 @@ stages:
     outs:
     - path: ranked_predictions.csv
       hash: md5
-      md5: 2cbc7008897a9f60f3cc7e044f04ab46
+      md5: 572679ed47a34cb3295ae0f3598e947f
       size: 432825
   train_xgb:
     cmd:
@@ -454,7 +450,7 @@ stages:
       size: 358204
     - path: ranked_predictions.csv
       hash: md5
-      md5: 2cbc7008897a9f60f3cc7e044f04ab46
+      md5: 572679ed47a34cb3295ae0f3598e947f
       size: 432825
     params:
       ../shared_params.yaml:
@@ -465,12 +461,12 @@ stages:
     outs:
     - path: xgb_model.rds
       hash: md5
-      md5: a0f6a44fda695f49eba6bfb469c11a8d
-      size: 795295
+      md5: 1c4c1125dbc93d39eec93bebba95f638
+      size: 792167
     - path: xgb_model_feature_importance.png
       hash: md5
-      md5: bf9b477ba1857354635dd3326d50cad1
-      size: 228480
+      md5: 2df0d1fd46f48e0da8c441743d3f3078
+      size: 229546
   compute_metrics_modelwise@mistral-7B-0p3:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv

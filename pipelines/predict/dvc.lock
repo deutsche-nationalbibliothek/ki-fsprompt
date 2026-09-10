@@ -262,9 +262,7 @@ stages:
     cmd:
     - "python ../../src/rank.py \\\n  --dataset_file ../preprocess/test.csv \\\n \
       \ --predictions_file mapped_predictions.csv \\\n  --output_file ranked_predictions.csv
-      \\\n  --prompt_template_info ../../templates/model_to_template.json \\\n  --prompt_template_dir
-      ../../templates/ \\\n  --params_file ../shared_params.yaml \\\n  --custom_instructions
-      ../../instructions/ranking_instruction03.json\n"
+      \\\n  --params_file ../shared_params.yaml \\\n  --custom_instructions ../../instructions/ranking_instruction03.json\n"
     deps:
     - path: ../../instructions/ranking_instruction03.json
       hash: md5
@@ -272,12 +270,8 @@ stages:
       size: 276
     - path: ../../src/rank.py
       hash: md5
-      md5: 21db298187817969433b34536a093a93
-      size: 13064
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: b7f331cb82d40a100c240527d5e10285
+      size: 13579
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -288,12 +282,14 @@ stages:
       size: 1361854
     params:
       ../shared_params.yaml:
-        completion.prompt_template_dir: templates/
+        ranking.enable_thinking: false
         ranking.instruction: instructions/ranking_instruction03.json
         ranking.max_confidence: 10
+        ranking.max_reasoning_tokens: 512
         ranking.max_suggestions: 100
         ranking.min_confidence: 0
-        ranking.model: meta-llama/Meta-Llama-3.1-8B-Instruct
+        ranking.model: Qwen/Qwen3.8-27B
+        ranking.reasoning_parser: None
         ranking.score_param: relevance
         ranking.temperature: 0
         ranking.threshold_confidence: 0
@@ -304,7 +300,7 @@ stages:
     outs:
     - path: ranked_predictions.csv
       hash: md5
-      md5: 1407ca4701412637cdde6b323d11afe9
+      md5: 2e9541431077b9297a2fcbd483d5b862
       size: 479076
   predict_xgb:
     cmd:
@@ -329,8 +325,8 @@ stages:
       size: 5225
     - path: ../train/xgb_model.rds
       hash: md5
-      md5: a0f6a44fda695f49eba6bfb469c11a8d
-      size: 795295
+      md5: 1c4c1125dbc93d39eec93bebba95f638
+      size: 792167
     - path: predictions_model_wise/apertus-8B/mapped_predictions.csv
       hash: md5
       md5: 9f03440cd20f3f49c981984d7d4c803d
@@ -371,7 +367,7 @@ stages:
       size: 398539
     - path: ranked_predictions.csv
       hash: md5
-      md5: 1407ca4701412637cdde6b323d11afe9
+      md5: 2e9541431077b9297a2fcbd483d5b862
       size: 479076
     params:
       params.yaml:
@@ -379,8 +375,8 @@ stages:
     outs:
     - path: predictions_xgb.csv
       hash: md5
-      md5: 8f1fcb88fe9f2c63711e6af59a43bec9
-      size: 511779
+      md5: c2274f014c6b9a556023be23f3058da6
+      size: 514186
   compute_metrics:
     cmd:
     - mkdir -p eval/
@@ -402,27 +398,27 @@ stages:
       size: 4157
     - path: predictions_xgb.csv
       hash: md5
-      md5: 8f1fcb88fe9f2c63711e6af59a43bec9
-      size: 511779
+      md5: c2274f014c6b9a556023be23f3058da6
+      size: 514186
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: eval//pr_auc.json
       hash: md5
-      md5: f1df439035261c52153e31a882fd7bb7
+      md5: 714e3c167b27a5c743b644816efc346c
       size: 29
     - path: eval//pr_curve.csv
       hash: md5
-      md5: 98ebdd1406181a9a57102719b8203d2e
-      size: 3192
+      md5: da65bbf2fbf40949599548740ec80b4c
+      size: 3111
     - path: eval//pr_curve_plot.svg
       hash: md5
-      md5: 97f2bd9b42cf390e7aaad22c2b9fe3df
-      size: 15767
+      md5: e1524a91f34e04dc731b678c1f4a2a9d
+      size: 15187
     - path: eval//scores_at_5_R.yaml
       hash: md5
-      md5: 7600318e415a4b20bee7daf30aed7ebf
+      md5: 0452c02ef9b92c747d8ab3aded2d612f
       size: 238
   compute_metrics_modelwise@mistral-7B-0p3:
     cmd:
