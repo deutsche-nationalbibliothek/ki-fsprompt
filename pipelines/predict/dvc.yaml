@@ -38,8 +38,6 @@ stages:
           --dataset_file ${predict.text_data} \
           --completion_file predictions_model_wise/${item.short_name}/${completion.completion_filename} \
           --prompt_specification ${retrieve.prompt_file} \
-          --prompt_template_info ../../${completion.prompt_template_info} \
-          --prompt_template_dir ../../${completion.prompt_template_dir} \
           --custom_instructions ../../${completion.custom_instruction} \
           --params_file ../shared_params.yaml 
       params:
@@ -50,17 +48,16 @@ stages:
           - completion.vllm.samplingparams.max_total_tokens
           - completion.vllm.samplingparams.max_chunks
           - completion.vllm.samplingparams.temperature
-          - completion.prompt_template_dir
           - vllm.global_samplingparams.presence_penalty
           - vllm.global_samplingparams.frequency_penalty
           - vllm.global_samplingparams.repetition_penalty
           - vllm.global_samplingparams.top_p
       deps:
       - ../../src/completion.py
+      - ../../src/PromptBuilder.py
       - ${predict.text_data}
       - ${retrieve.prompt_file}
       - ../../${completion.custom_instruction}
-      - ../../${completion.prompt_template_info}
       outs:
       - predictions_model_wise/${item.short_name}/${completion.completion_filename}
 
@@ -125,28 +122,26 @@ stages:
     cmd:
     - > 
       python ../../src/summarize_candidates.py \
-          predictions_model_wise/mistral-7B-0p3/${mapping.output_file} \
           predictions_model_wise/llama-3B/${mapping.output_file} \
           predictions_model_wise/ministral-3-8B-instruct/${mapping.output_file} \
           predictions_model_wise/ministral-3-14B-instruct/${mapping.output_file} \
           predictions_model_wise/qwen-3p5-35B-A3B/${mapping.output_file} \
           predictions_model_wise/qwen-3-4B/${mapping.output_file} \
           predictions_model_wise/gemma-4-26B-A4B-it/${mapping.output_file} \
-          predictions_model_wise/teuken-7B/${mapping.output_file} \
           predictions_model_wise/occiglot-7B/${mapping.output_file} \
           predictions_model_wise/phi-3p5-mini/${mapping.output_file} \
           predictions_model_wise/apertus-8B/${mapping.output_file} \
         --output_file  ${mapping.output_file}
     deps:
     - ../../src/summarize_candidates.py
-    - predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
+    # - predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
     - predictions_model_wise/llama-3B/${mapping.output_file}
     - predictions_model_wise/ministral-3-8B-instruct/${mapping.output_file}
     - predictions_model_wise/ministral-3-14B-instruct/${mapping.output_file}
     - predictions_model_wise/qwen-3p5-35B-A3B/${mapping.output_file}
     - predictions_model_wise/qwen-3-4B/${mapping.output_file}
     - predictions_model_wise/gemma-4-26B-A4B-it/${mapping.output_file}
-    - predictions_model_wise/teuken-7B/${mapping.output_file}
+    #- predictions_model_wise/teuken-7B/${mapping.output_file}
     - predictions_model_wise/occiglot-7B/${mapping.output_file}
     - predictions_model_wise/phi-3p5-mini/${mapping.output_file}
     - predictions_model_wise/apertus-8B/${mapping.output_file}
@@ -195,14 +190,12 @@ stages:
     cmd:
       - >
         python ../../src/predict_xgb.py \
-          predictions_model_wise/mistral-7B-0p3/${mapping.output_file} \
           predictions_model_wise/llama-3B/${mapping.output_file} \
           predictions_model_wise/ministral-3-8B-instruct/${mapping.output_file} \
           predictions_model_wise/ministral-3-14B-instruct/${mapping.output_file} \
           predictions_model_wise/qwen-3p5-35B-A3B/${mapping.output_file} \
           predictions_model_wise/qwen-3-4B/${mapping.output_file} \
           predictions_model_wise/gemma-4-26B-A4B-it/${mapping.output_file} \
-          predictions_model_wise/teuken-7B/${mapping.output_file} \
           predictions_model_wise/occiglot-7B/${mapping.output_file} \
           predictions_model_wise/phi-3p5-mini/${mapping.output_file} \
           predictions_model_wise/apertus-8B/${mapping.output_file} \
@@ -217,14 +210,14 @@ stages:
       - ../../src/predict_xgb.py
       - ../train/${train_xgb.model_file}
       - ${predict.index}
-      - predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
+      #- predictions_model_wise/mistral-7B-0p3/${mapping.output_file}
       - predictions_model_wise/llama-3B/${mapping.output_file}
       - predictions_model_wise/ministral-3-8B-instruct/${mapping.output_file}
       - predictions_model_wise/ministral-3-14B-instruct/${mapping.output_file}
       - predictions_model_wise/qwen-3p5-35B-A3B/${mapping.output_file}
       - predictions_model_wise/qwen-3-4B/${mapping.output_file}
       - predictions_model_wise/gemma-4-26B-A4B-it/${mapping.output_file}
-      - predictions_model_wise/teuken-7B/${mapping.output_file}
+      #- predictions_model_wise/teuken-7B/${mapping.output_file}
       - predictions_model_wise/occiglot-7B/${mapping.output_file}
       - predictions_model_wise/phi-3p5-mini/${mapping.output_file}
       - predictions_model_wise/apertus-8B/${mapping.output_file}

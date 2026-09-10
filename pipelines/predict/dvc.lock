@@ -81,23 +81,22 @@ stages:
     - mkdir -p predictions_model_wise/llama-3B/
     - "python ../../src/completion.py \\\n  --hf_model_name meta-llama/Llama-3.2-3B-Instruct
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/llama-3B/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -109,7 +108,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -122,8 +120,8 @@ stages:
     outs:
     - path: predictions_model_wise/llama-3B/completions.csv
       hash: md5
-      md5: c6b83c5890f96107d024e50f1301eb8e
-      size: 130519
+      md5: 977b168ec45f83ca932f97b8f8795b97
+      size: 136601
   map@mistral-7B-0p3:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/mistral-7B-0p3/completions.csv
@@ -180,8 +178,8 @@ stages:
       size: 256
     - path: predictions_model_wise/llama-3B/completions.csv
       hash: md5
-      md5: c6b83c5890f96107d024e50f1301eb8e
-      size: 130519
+      md5: 977b168ec45f83ca932f97b8f8795b97
+      size: 136601
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -192,26 +190,26 @@ stages:
     outs:
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: cf01b23f75745d9bab2a3420b79e9ef2
-      size: 418342
+      md5: b637b80c83c9892ead6ac81c26566a1e
+      size: 437331
     - path: predictions_model_wise/llama-3B/mapping_stats.json
       hash: md5
-      md5: ec3ad5fc03247f79bac407438993b804
-      size: 54
+      md5: a72a93b67707ce31208cf2e89d3c5b20
+      size: 53
     - path: predictions_model_wise/llama-3B/removed_mapped_predictions.csv
       hash: md5
-      md5: 4e1f3e53f07419601926d4ed3ec894d9
-      size: 9683
+      md5: 8f630789cbf6e898675435097db79257
+      size: 9347
   summarize:
     cmd:
-    - "python ../../src/summarize_candidates.py \\\n    predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
-      \\\n    predictions_model_wise/llama-3B/mapped_predictions.csv \\\n    predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
+    - "python ../../src/summarize_candidates.py \\\n    predictions_model_wise/llama-3B/mapped_predictions.csv
+      \\\n    predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       \\\n    predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       \\\n    predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv \\\n\
       \    predictions_model_wise/qwen-3-4B/mapped_predictions.csv \\\n    predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
-      \\\n    predictions_model_wise/teuken-7B/mapped_predictions.csv \\\n    predictions_model_wise/occiglot-7B/mapped_predictions.csv
-      \\\n    predictions_model_wise/phi-3p5-mini/mapped_predictions.csv \\\n    predictions_model_wise/apertus-8B/mapped_predictions.csv
-      \\\n  --output_file  mapped_predictions.csv\n"
+      \\\n    predictions_model_wise/occiglot-7B/mapped_predictions.csv \\\n    predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
+      \\\n    predictions_model_wise/apertus-8B/mapped_predictions.csv \\\n  --output_file\
+      \  mapped_predictions.csv\n"
     deps:
     - path: ../../src/summarize_candidates.py
       hash: md5
@@ -219,55 +217,47 @@ stages:
       size: 2234
     - path: predictions_model_wise/apertus-8B/mapped_predictions.csv
       hash: md5
-      md5: 26fbcbdbe6d6a1906617d134341f685e
-      size: 373292
+      md5: 9f03440cd20f3f49c981984d7d4c803d
+      size: 365451
     - path: predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
       hash: md5
-      md5: 63614fdef31e39d07c33aaf77c7c6607
-      size: 338041
+      md5: 95ba1c0e79786eb01ea38a31a0b0cdf8
+      size: 362865
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: cf01b23f75745d9bab2a3420b79e9ef2
-      size: 418342
+      md5: b637b80c83c9892ead6ac81c26566a1e
+      size: 437331
     - path: 
         predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       hash: md5
-      md5: db4f8a7f75fbb9857cdb89487658966f
-      size: 650228
+      md5: 902ebefc26344b2b526dc97f9b5f3ca8
+      size: 480217
     - path: 
         predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       hash: md5
-      md5: 180e5e09cbeccc7faf6d25835a0ce284
-      size: 892474
-    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
-      hash: md5
-      md5: 5e0ad8dad08f3dd851b91ac30835cd63
-      size: 380069
+      md5: 434fb71da74510f7d82e8377e1f2b520
+      size: 481622
     - path: predictions_model_wise/occiglot-7B/mapped_predictions.csv
       hash: md5
-      md5: 6f34af675d9a89cf18743cfb7c75d6d3
-      size: 411742
+      md5: a33d02949d956ef2a6835d0c0886c00e
+      size: 413328
     - path: predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
       hash: md5
-      md5: c9f8e209db6b5ab2020203bb2379bafa
-      size: 586197
+      md5: 8c108e90a43d85bcd354349b2b0dac63
+      size: 583969
     - path: predictions_model_wise/qwen-3-4B/mapped_predictions.csv
       hash: md5
-      md5: ecde31cb3eb6f4decad8fc1f4e57b655
-      size: 440957
+      md5: 4b5118f3989372d758eff298687d80ce
+      size: 400512
     - path: predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv
       hash: md5
-      md5: f9feef00434963689434ec7d3f8a302e
-      size: 371014
-    - path: predictions_model_wise/teuken-7B/mapped_predictions.csv
-      hash: md5
-      md5: bee0e2ccbe1131f8c84d48d87fac017c
-      size: 477937
+      md5: 65f37ebd0f958b44b3828edef0e8dfc4
+      size: 398539
     outs:
     - path: mapped_predictions.csv
       hash: md5
-      md5: d54a9ad4ccce7407f3a5aa9f1bc5f0bb
-      size: 2056725
+      md5: f6922866c008f7aa3823a1840ef20893
+      size: 1361854
   rank:
     cmd:
     - "python ../../src/rank.py \\\n  --dataset_file ../preprocess/test.csv \\\n \
@@ -294,8 +284,8 @@ stages:
       size: 258607
     - path: mapped_predictions.csv
       hash: md5
-      md5: d54a9ad4ccce7407f3a5aa9f1bc5f0bb
-      size: 2056725
+      md5: f6922866c008f7aa3823a1840ef20893
+      size: 1361854
     params:
       ../shared_params.yaml:
         completion.prompt_template_dir: templates/
@@ -314,20 +304,20 @@ stages:
     outs:
     - path: ranked_predictions.csv
       hash: md5
-      md5: 6fc493a4466dd48e680eafa875bc890a
-      size: 725828
+      md5: 1407ca4701412637cdde6b323d11afe9
+      size: 479076
   predict_xgb:
     cmd:
-    - "python ../../src/predict_xgb.py \\\n  predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
-      \\\n  predictions_model_wise/llama-3B/mapped_predictions.csv \\\n  predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
+    - "python ../../src/predict_xgb.py \\\n  predictions_model_wise/llama-3B/mapped_predictions.csv
+      \\\n  predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       \\\n  predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       \\\n  predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv \\\n  predictions_model_wise/qwen-3-4B/mapped_predictions.csv
       \\\n  predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv \\\n\
-      \  predictions_model_wise/teuken-7B/mapped_predictions.csv \\\n  predictions_model_wise/occiglot-7B/mapped_predictions.csv
-      \\\n  predictions_model_wise/phi-3p5-mini/mapped_predictions.csv \\\n  predictions_model_wise/apertus-8B/mapped_predictions.csv
-      \\\n  --test_index ../../corpora/title/test.arrow \\\n  --ranked_predictions
-      ranked_predictions.csv \\\n  --model_file ../train/xgb_model.rds \\\n  --top_k
-      100 \\\n  --out_csv predictions_xgb.csv\n"
+      \  predictions_model_wise/occiglot-7B/mapped_predictions.csv \\\n  predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
+      \\\n  predictions_model_wise/apertus-8B/mapped_predictions.csv \\\n  --test_index
+      ../../corpora/title/test.arrow \\\n  --ranked_predictions ranked_predictions.csv
+      \\\n  --model_file ../train/xgb_model.rds \\\n  --top_k 100 \\\n  --out_csv
+      predictions_xgb.csv\n"
     deps:
     - path: ../../corpora/title/test.arrow
       hash: md5
@@ -339,66 +329,58 @@ stages:
       size: 5225
     - path: ../train/xgb_model.rds
       hash: md5
-      md5: 02df11c2cdc6b57a1dbea36babce150e
-      size: 795380
+      md5: a0f6a44fda695f49eba6bfb469c11a8d
+      size: 795295
     - path: predictions_model_wise/apertus-8B/mapped_predictions.csv
       hash: md5
-      md5: 26fbcbdbe6d6a1906617d134341f685e
-      size: 373292
+      md5: 9f03440cd20f3f49c981984d7d4c803d
+      size: 365451
     - path: predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
       hash: md5
-      md5: 63614fdef31e39d07c33aaf77c7c6607
-      size: 338041
+      md5: 95ba1c0e79786eb01ea38a31a0b0cdf8
+      size: 362865
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: cf01b23f75745d9bab2a3420b79e9ef2
-      size: 418342
+      md5: b637b80c83c9892ead6ac81c26566a1e
+      size: 437331
     - path: 
         predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       hash: md5
-      md5: db4f8a7f75fbb9857cdb89487658966f
-      size: 650228
+      md5: 902ebefc26344b2b526dc97f9b5f3ca8
+      size: 480217
     - path: 
         predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       hash: md5
-      md5: 180e5e09cbeccc7faf6d25835a0ce284
-      size: 892474
-    - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
-      hash: md5
-      md5: 5e0ad8dad08f3dd851b91ac30835cd63
-      size: 380069
+      md5: 434fb71da74510f7d82e8377e1f2b520
+      size: 481622
     - path: predictions_model_wise/occiglot-7B/mapped_predictions.csv
       hash: md5
-      md5: 6f34af675d9a89cf18743cfb7c75d6d3
-      size: 411742
+      md5: a33d02949d956ef2a6835d0c0886c00e
+      size: 413328
     - path: predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
       hash: md5
-      md5: c9f8e209db6b5ab2020203bb2379bafa
-      size: 586197
+      md5: 8c108e90a43d85bcd354349b2b0dac63
+      size: 583969
     - path: predictions_model_wise/qwen-3-4B/mapped_predictions.csv
       hash: md5
-      md5: ecde31cb3eb6f4decad8fc1f4e57b655
-      size: 440957
+      md5: 4b5118f3989372d758eff298687d80ce
+      size: 400512
     - path: predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv
       hash: md5
-      md5: f9feef00434963689434ec7d3f8a302e
-      size: 371014
-    - path: predictions_model_wise/teuken-7B/mapped_predictions.csv
-      hash: md5
-      md5: bee0e2ccbe1131f8c84d48d87fac017c
-      size: 477937
+      md5: 65f37ebd0f958b44b3828edef0e8dfc4
+      size: 398539
     - path: ranked_predictions.csv
       hash: md5
-      md5: 6fc493a4466dd48e680eafa875bc890a
-      size: 725828
+      md5: 1407ca4701412637cdde6b323d11afe9
+      size: 479076
     params:
       params.yaml:
         predict_xgb.top_k: 100
     outs:
     - path: predictions_xgb.csv
       hash: md5
-      md5: 4288c8700f97f486613f3df6f8b67620
-      size: 775322
+      md5: 8f1fcb88fe9f2c63711e6af59a43bec9
+      size: 511779
   compute_metrics:
     cmd:
     - mkdir -p eval/
@@ -420,27 +402,27 @@ stages:
       size: 4157
     - path: predictions_xgb.csv
       hash: md5
-      md5: 4288c8700f97f486613f3df6f8b67620
-      size: 775322
+      md5: 8f1fcb88fe9f2c63711e6af59a43bec9
+      size: 511779
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: eval//pr_auc.json
       hash: md5
-      md5: fd9f0011d049297583a5739f038c4c1c
+      md5: f1df439035261c52153e31a882fd7bb7
       size: 29
     - path: eval//pr_curve.csv
       hash: md5
-      md5: 2613b2f4d23c541c0f047478021dc8bc
-      size: 3416
+      md5: 98ebdd1406181a9a57102719b8203d2e
+      size: 3192
     - path: eval//pr_curve_plot.svg
       hash: md5
-      md5: e1fa5e996e031b406f369d20ffec2c90
-      size: 16373
+      md5: 97f2bd9b42cf390e7aaad22c2b9fe3df
+      size: 15767
     - path: eval//scores_at_5_R.yaml
       hash: md5
-      md5: f14528bf0ce5f551dd9dcd3b38d2edde
+      md5: 7600318e415a4b20bee7daf30aed7ebf
       size: 238
   compute_metrics_modelwise@mistral-7B-0p3:
     cmd:
@@ -494,38 +476,37 @@ stages:
       size: 4157
     - path: predictions_model_wise/llama-3B/mapped_predictions.csv
       hash: md5
-      md5: cf01b23f75745d9bab2a3420b79e9ef2
-      size: 418342
+      md5: b637b80c83c9892ead6ac81c26566a1e
+      size: 437331
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/llama-3B/scores_at_5_R.yaml
       hash: md5
-      md5: 76baf0c6d98244f9658949535c6188c6
-      size: 238
+      md5: 8b0a87e74afc3c0430cc13a7fe88cfc4
+      size: 237
   complete@ministral-3-8B-instruct:
     cmd:
     - mkdir -p predictions_model_wise/ministral-3-8B-instruct/
     - "python ../../src/completion.py \\\n  --hf_model_name mistralai/Ministral-3-8B-Instruct-2512
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/ministral-3-8B-instruct/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -537,7 +518,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -550,30 +530,29 @@ stages:
     outs:
     - path: predictions_model_wise/ministral-3-8B-instruct/completions.csv
       hash: md5
-      md5: c8e21a20560c87fda4b160ebeb8a4fb1
-      size: 285102
+      md5: 1f5b652a9a967b5a77f03f1b6dedd55d
+      size: 152344
   complete@ministral-3-14B-instruct:
     cmd:
     - mkdir -p predictions_model_wise/ministral-3-14B-instruct/
     - "python ../../src/completion.py \\\n  --hf_model_name mistralai/Ministral-3-14B-Instruct-2512
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/ministral-3-14B-instruct/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -585,7 +564,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -598,30 +576,29 @@ stages:
     outs:
     - path: predictions_model_wise/ministral-3-14B-instruct/completions.csv
       hash: md5
-      md5: 477a09f4a2bb43ea6072b63d16d53db8
-      size: 208510
+      md5: ba06c07525c9ceef487fd71e40c7011c
+      size: 155496
   complete@qwen-3p5-35B-A3B:
     cmd:
     - mkdir -p predictions_model_wise/qwen-3p5-35B-A3B/
     - "python ../../src/completion.py \\\n  --hf_model_name Qwen/Qwen3.5-35B-A3B \\\
       \n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/qwen-3p5-35B-A3B/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -633,7 +610,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -646,30 +622,29 @@ stages:
     outs:
     - path: predictions_model_wise/qwen-3p5-35B-A3B/completions.csv
       hash: md5
-      md5: 1bdfee80ce03f76f98df5827d71686b7
-      size: 118360
+      md5: e5685aad74ab61d9a5498ebad8f22c4d
+      size: 124593
   complete@qwen-3-4B:
     cmd:
     - mkdir -p predictions_model_wise/qwen-3-4B/
     - "python ../../src/completion.py \\\n  --hf_model_name Qwen/Qwen3-4B \\\n  --dataset_file
       ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/qwen-3-4B/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -681,7 +656,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -694,30 +668,29 @@ stages:
     outs:
     - path: predictions_model_wise/qwen-3-4B/completions.csv
       hash: md5
-      md5: cc9a37a3c9ee7801cb2c8337cb73beab
-      size: 139409
+      md5: bf30b23b326f8abe4f7afc8db6bd8b0b
+      size: 124084
   complete@gemma-4-26B-A4B-it:
     cmd:
     - mkdir -p predictions_model_wise/gemma-4-26B-A4B-it/
     - "python ../../src/completion.py \\\n  --hf_model_name google/gemma-4-26B-A4B-it
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/gemma-4-26B-A4B-it/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -729,7 +702,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -742,8 +714,8 @@ stages:
     outs:
     - path: predictions_model_wise/gemma-4-26B-A4B-it/completions.csv
       hash: md5
-      md5: 82ad2b88cee88080663494dceb101318
-      size: 113732
+      md5: a6906765049a3e3e73b98404c9513f49
+      size: 113029
   complete@teuken-7B-instruct:
     cmd:
     - mkdir -p predictions_model_wise/teuken-7B/
@@ -797,23 +769,22 @@ stages:
     - mkdir -p predictions_model_wise/occiglot-7B/
     - "python ../../src/completion.py \\\n  --hf_model_name occiglot/occiglot-7b-eu5-instruct
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/occiglot-7B/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -825,7 +796,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -838,30 +808,29 @@ stages:
     outs:
     - path: predictions_model_wise/occiglot-7B/completions.csv
       hash: md5
-      md5: 0eb77dae24dcefe6d4b36372512ad1d8
-      size: 132779
+      md5: 0db5ffee41b35550b72061da8af58399
+      size: 135021
   complete@phi-3p5-mini-instruct:
     cmd:
     - mkdir -p predictions_model_wise/phi-3p5-mini/
     - "python ../../src/completion.py \\\n  --hf_model_name microsoft/Phi-3.5-mini-instruct
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/phi-3p5-mini/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -873,7 +842,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -886,8 +854,8 @@ stages:
     outs:
     - path: predictions_model_wise/phi-3p5-mini/completions.csv
       hash: md5
-      md5: c81eb5c7937fb7a663d09a3dcc1ce9e2
-      size: 186181
+      md5: b0df019bdd46eb6954a1f4fb1080c359
+      size: 185215
   map@ministral-3-8B-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/ministral-3-8B-instruct/completions.csv
@@ -905,8 +873,8 @@ stages:
       size: 256
     - path: predictions_model_wise/ministral-3-8B-instruct/completions.csv
       hash: md5
-      md5: c8e21a20560c87fda4b160ebeb8a4fb1
-      size: 285102
+      md5: 1f5b652a9a967b5a77f03f1b6dedd55d
+      size: 152344
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -918,17 +886,17 @@ stages:
     - path: 
         predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       hash: md5
-      md5: 180e5e09cbeccc7faf6d25835a0ce284
-      size: 892474
+      md5: 434fb71da74510f7d82e8377e1f2b520
+      size: 481622
     - path: predictions_model_wise/ministral-3-8B-instruct/mapping_stats.json
       hash: md5
-      md5: b3d7ec5d6cab0f84b152dce9b4add258
-      size: 54
+      md5: 5f4cb3f22b3b975881d07125093740d2
+      size: 53
     - path: 
         predictions_model_wise/ministral-3-8B-instruct/removed_mapped_predictions.csv
       hash: md5
-      md5: 3443150205f1c04e79a4e5dca69a7326
-      size: 21875
+      md5: 4c1a4647f9d546b621b7fe0c8b6a6c2f
+      size: 8427
   map@ministral-3-14B-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/ministral-3-14B-instruct/completions.csv
@@ -946,8 +914,8 @@ stages:
       size: 256
     - path: predictions_model_wise/ministral-3-14B-instruct/completions.csv
       hash: md5
-      md5: 477a09f4a2bb43ea6072b63d16d53db8
-      size: 208510
+      md5: ba06c07525c9ceef487fd71e40c7011c
+      size: 155496
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -959,17 +927,17 @@ stages:
     - path: 
         predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       hash: md5
-      md5: db4f8a7f75fbb9857cdb89487658966f
-      size: 650228
+      md5: 902ebefc26344b2b526dc97f9b5f3ca8
+      size: 480217
     - path: predictions_model_wise/ministral-3-14B-instruct/mapping_stats.json
       hash: md5
-      md5: 89707c6f4a73e67bbbbfeea34b205971
+      md5: 5942a46ef19135774f70b6c6cbbcd8c8
       size: 54
     - path: 
         predictions_model_wise/ministral-3-14B-instruct/removed_mapped_predictions.csv
       hash: md5
-      md5: 3445b345fa639c1380fa736fcfc263e0
-      size: 19192
+      md5: 4bc62ea943a6d41c6c330832549550e1
+      size: 12832
   map@qwen-3p5-35B-A3B:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/qwen-3p5-35B-A3B/completions.csv
@@ -987,8 +955,8 @@ stages:
       size: 256
     - path: predictions_model_wise/qwen-3p5-35B-A3B/completions.csv
       hash: md5
-      md5: 1bdfee80ce03f76f98df5827d71686b7
-      size: 118360
+      md5: e5685aad74ab61d9a5498ebad8f22c4d
+      size: 124593
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -999,17 +967,17 @@ stages:
     outs:
     - path: predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv
       hash: md5
-      md5: f9feef00434963689434ec7d3f8a302e
-      size: 371014
+      md5: 65f37ebd0f958b44b3828edef0e8dfc4
+      size: 398539
     - path: predictions_model_wise/qwen-3p5-35B-A3B/mapping_stats.json
       hash: md5
-      md5: ba03b2fc092a8ae2043d83e49f99b72c
-      size: 53
+      md5: b66acbb6fd24b006fdb06e575990bc13
+      size: 54
     - path: 
         predictions_model_wise/qwen-3p5-35B-A3B/removed_mapped_predictions.csv
       hash: md5
-      md5: 995442cd9ef1822f513935c602793521
-      size: 6868
+      md5: 9855a2f3c38d2c030936c761010c2f10
+      size: 9888
   map@qwen-3-4B:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/qwen-3-4B/completions.csv
@@ -1027,8 +995,8 @@ stages:
       size: 256
     - path: predictions_model_wise/qwen-3-4B/completions.csv
       hash: md5
-      md5: cc9a37a3c9ee7801cb2c8337cb73beab
-      size: 139409
+      md5: bf30b23b326f8abe4f7afc8db6bd8b0b
+      size: 124084
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -1039,16 +1007,16 @@ stages:
     outs:
     - path: predictions_model_wise/qwen-3-4B/mapped_predictions.csv
       hash: md5
-      md5: ecde31cb3eb6f4decad8fc1f4e57b655
-      size: 440957
+      md5: 4b5118f3989372d758eff298687d80ce
+      size: 400512
     - path: predictions_model_wise/qwen-3-4B/mapping_stats.json
       hash: md5
-      md5: c0f5658b83c58664fec7b99bf29ab1a1
+      md5: 4b10f8775d79980a1cf6ccbc3cbfcbc9
       size: 53
     - path: predictions_model_wise/qwen-3-4B/removed_mapped_predictions.csv
       hash: md5
-      md5: d91d987722ff5ea3b724a4fcf8a1fd05
-      size: 8793
+      md5: 79a7bc7110cd8e586a25a5ee6a1ab157
+      size: 8696
   map@gemma-4-26B-A4B-it:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/gemma-4-26B-A4B-it/completions.csv
@@ -1066,8 +1034,8 @@ stages:
       size: 256
     - path: predictions_model_wise/gemma-4-26B-A4B-it/completions.csv
       hash: md5
-      md5: 82ad2b88cee88080663494dceb101318
-      size: 113732
+      md5: a6906765049a3e3e73b98404c9513f49
+      size: 113029
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -1078,17 +1046,17 @@ stages:
     outs:
     - path: predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
       hash: md5
-      md5: 63614fdef31e39d07c33aaf77c7c6607
-      size: 338041
+      md5: 95ba1c0e79786eb01ea38a31a0b0cdf8
+      size: 362865
     - path: predictions_model_wise/gemma-4-26B-A4B-it/mapping_stats.json
       hash: md5
-      md5: 32122f59beb047b0a82c4d9d2059d08b
+      md5: 11bb4e61eb3d4b8b848c2bf1b27912d7
       size: 54
     - path: 
         predictions_model_wise/gemma-4-26B-A4B-it/removed_mapped_predictions.csv
       hash: md5
-      md5: 58d3a05cfe5373c540440262cb2233cb
-      size: 12921
+      md5: 8edbe6e64c2d73a3eef0080c80ae14f2
+      size: 11121
   map@teuken-7B-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/teuken-7B/completions.csv
@@ -1145,8 +1113,8 @@ stages:
       size: 256
     - path: predictions_model_wise/occiglot-7B/completions.csv
       hash: md5
-      md5: 0eb77dae24dcefe6d4b36372512ad1d8
-      size: 132779
+      md5: 0db5ffee41b35550b72061da8af58399
+      size: 135021
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -1157,16 +1125,16 @@ stages:
     outs:
     - path: predictions_model_wise/occiglot-7B/mapped_predictions.csv
       hash: md5
-      md5: 6f34af675d9a89cf18743cfb7c75d6d3
-      size: 411742
+      md5: a33d02949d956ef2a6835d0c0886c00e
+      size: 413328
     - path: predictions_model_wise/occiglot-7B/mapping_stats.json
       hash: md5
-      md5: 3824e8b10a9bb354ffbe2e39564ea15c
+      md5: 8777f57c39e0add72ee812f6a8831003
       size: 53
     - path: predictions_model_wise/occiglot-7B/removed_mapped_predictions.csv
       hash: md5
-      md5: f8c366cc8d9e3b5d4d0a9ac9d627901c
-      size: 6684
+      md5: 696b564513793fb12802f6ffc26bc103
+      size: 7369
   map@phi-3p5-mini-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/phi-3p5-mini/completions.csv
@@ -1184,8 +1152,8 @@ stages:
       size: 256
     - path: predictions_model_wise/phi-3p5-mini/completions.csv
       hash: md5
-      md5: c81eb5c7937fb7a663d09a3dcc1ce9e2
-      size: 186181
+      md5: b0df019bdd46eb6954a1f4fb1080c359
+      size: 185215
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -1196,16 +1164,16 @@ stages:
     outs:
     - path: predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
       hash: md5
-      md5: c9f8e209db6b5ab2020203bb2379bafa
-      size: 586197
+      md5: 8c108e90a43d85bcd354349b2b0dac63
+      size: 583969
     - path: predictions_model_wise/phi-3p5-mini/mapping_stats.json
       hash: md5
-      md5: cce8f05828ed243954ba931ff691f689
+      md5: 6e3593d27fda10aea894d45f23ecf073
       size: 54
     - path: predictions_model_wise/phi-3p5-mini/removed_mapped_predictions.csv
       hash: md5
-      md5: 95b4e661a96c43ddb46b52fcbc7237fd
-      size: 20909
+      md5: de4b9553cacf43648b723185255ba6a0
+      size: 20263
   compute_metrics_modelwise@ministral-3-8B-instruct:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
@@ -1228,15 +1196,15 @@ stages:
     - path: 
         predictions_model_wise/ministral-3-8B-instruct/mapped_predictions.csv
       hash: md5
-      md5: 180e5e09cbeccc7faf6d25835a0ce284
-      size: 892474
+      md5: 434fb71da74510f7d82e8377e1f2b520
+      size: 481622
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/ministral-3-8B-instruct/scores_at_5_R.yaml
       hash: md5
-      md5: 8cc5f95b03148f4e38fe7f4ecb90f4db
+      md5: 12dac3333a419520be61dc0c95afdc36
       size: 236
   compute_metrics_modelwise@ministral-3-14B-instruct:
     cmd:
@@ -1260,16 +1228,16 @@ stages:
     - path: 
         predictions_model_wise/ministral-3-14B-instruct/mapped_predictions.csv
       hash: md5
-      md5: db4f8a7f75fbb9857cdb89487658966f
-      size: 650228
+      md5: 902ebefc26344b2b526dc97f9b5f3ca8
+      size: 480217
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/ministral-3-14B-instruct/scores_at_5_R.yaml
       hash: md5
-      md5: a4c220843c8683d48a161a3110b315d3
-      size: 238
+      md5: 5777a5a267eb5abfbed5e569f3de14f5
+      size: 237
   compute_metrics_modelwise@qwen-3p5-35B-A3B:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv
@@ -1291,15 +1259,15 @@ stages:
       size: 4157
     - path: predictions_model_wise/qwen-3p5-35B-A3B/mapped_predictions.csv
       hash: md5
-      md5: f9feef00434963689434ec7d3f8a302e
-      size: 371014
+      md5: 65f37ebd0f958b44b3828edef0e8dfc4
+      size: 398539
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/qwen-3p5-35B-A3B/scores_at_5_R.yaml
       hash: md5
-      md5: 5990568a94c37936d8a85c4820f63ee6
+      md5: 5570ccae37fe281fefd1b84c776df435
       size: 238
   compute_metrics_modelwise@qwen-3-4B:
     cmd:
@@ -1322,16 +1290,16 @@ stages:
       size: 4157
     - path: predictions_model_wise/qwen-3-4B/mapped_predictions.csv
       hash: md5
-      md5: ecde31cb3eb6f4decad8fc1f4e57b655
-      size: 440957
+      md5: 4b5118f3989372d758eff298687d80ce
+      size: 400512
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/qwen-3-4B/scores_at_5_R.yaml
       hash: md5
-      md5: b7c584877243a9dc2574e875d4f1b347
-      size: 236
+      md5: 1108f6808e0791c13b4fb137695d0618
+      size: 238
   compute_metrics_modelwise@gemma-4-26B-A4B-it:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
@@ -1353,15 +1321,15 @@ stages:
       size: 4157
     - path: predictions_model_wise/gemma-4-26B-A4B-it/mapped_predictions.csv
       hash: md5
-      md5: 63614fdef31e39d07c33aaf77c7c6607
-      size: 338041
+      md5: 95ba1c0e79786eb01ea38a31a0b0cdf8
+      size: 362865
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/gemma-4-26B-A4B-it/scores_at_5_R.yaml
       hash: md5
-      md5: fe4e6c8ddb73fcc155397181b75be210
+      md5: 2832e752a250598570872626343c33d0
       size: 238
   compute_metrics_modelwise@teuken-7B-instruct:
     cmd:
@@ -1415,16 +1383,16 @@ stages:
       size: 4157
     - path: predictions_model_wise/occiglot-7B/mapped_predictions.csv
       hash: md5
-      md5: 6f34af675d9a89cf18743cfb7c75d6d3
-      size: 411742
+      md5: a33d02949d956ef2a6835d0c0886c00e
+      size: 413328
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/occiglot-7B/scores_at_5_R.yaml
       hash: md5
-      md5: 70d81410c926bebcd183bdb503a49ca3
-      size: 237
+      md5: b80e846ac1026dd11329ae107fe61b51
+      size: 238
   compute_metrics_modelwise@phi-3p5-mini-instruct:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
@@ -1446,38 +1414,37 @@ stages:
       size: 4157
     - path: predictions_model_wise/phi-3p5-mini/mapped_predictions.csv
       hash: md5
-      md5: c9f8e209db6b5ab2020203bb2379bafa
-      size: 586197
+      md5: 8c108e90a43d85bcd354349b2b0dac63
+      size: 583969
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/phi-3p5-mini/scores_at_5_R.yaml
       hash: md5
-      md5: 297233d77f577238e8a7c801ec9b90bd
-      size: 238
+      md5: a2cae2b94f206652136f0379b279857b
+      size: 237
   complete@apertus-8B:
     cmd:
     - mkdir -p predictions_model_wise/apertus-8B/
     - "python ../../src/completion.py \\\n  --hf_model_name swiss-ai/Apertus-8B-Instruct-2509
       \\\n  --dataset_file ../preprocess/test.csv \\\n  --completion_file predictions_model_wise/apertus-8B/completions.csv
-      \\\n  --prompt_specification retrieved_examples.csv \\\n  --prompt_template_info
-      ../../templates/model_to_template.json \\\n  --prompt_template_dir ../../templates/
-      \\\n  --custom_instructions ../../instructions/instruction03.txt \\\n  --params_file
-      ../shared_params.yaml \n"
+      \\\n  --prompt_specification retrieved_examples.csv \\\n  --custom_instructions
+      ../../instructions/instruction03.txt \\\n  --params_file ../shared_params.yaml\
+      \ \n"
     deps:
     - path: ../../instructions/instruction03.txt
       hash: md5
       md5: 1f0213f7e08639598e8e908580fb6432
       size: 138
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: d62d70be6699d2016f541861dcd6a7d6
+      size: 2891
     - path: ../../src/completion.py
       hash: md5
-      md5: 7c3106e04c1a538f9268a6232ed27228
-      size: 14155
-    - path: ../../templates/model_to_template.json
-      hash: md5
-      md5: 8e551e0b7a56275d59f56f2a262000fd
-      size: 1116
+      md5: 13c331230dc680756dcc927ce9b1d7f5
+      size: 13785
     - path: ../preprocess/test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
@@ -1489,7 +1456,6 @@ stages:
     params:
       ../shared_params.yaml:
         completion.custom_instruction: instructions/instruction03.txt
-        completion.prompt_template_dir: templates/
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 15000
@@ -1502,8 +1468,8 @@ stages:
     outs:
     - path: predictions_model_wise/apertus-8B/completions.csv
       hash: md5
-      md5: 3ab942ddd811050b852f9d86fe1f3565
-      size: 117103
+      md5: 78e440d35344795d17417de61a0c321a
+      size: 114775
   map@apertus-8B:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/apertus-8B/completions.csv
@@ -1521,8 +1487,8 @@ stages:
       size: 256
     - path: predictions_model_wise/apertus-8B/completions.csv
       hash: md5
-      md5: 3ab942ddd811050b852f9d86fe1f3565
-      size: 117103
+      md5: 78e440d35344795d17417de61a0c321a
+      size: 114775
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -1533,16 +1499,16 @@ stages:
     outs:
     - path: predictions_model_wise/apertus-8B/mapped_predictions.csv
       hash: md5
-      md5: 26fbcbdbe6d6a1906617d134341f685e
-      size: 373292
+      md5: 9f03440cd20f3f49c981984d7d4c803d
+      size: 365451
     - path: predictions_model_wise/apertus-8B/mapping_stats.json
       hash: md5
-      md5: a80f38fc24e60e6e397f2e539e137fce
+      md5: da880af08950cf8731e8c1e8dad9ce06
       size: 53
     - path: predictions_model_wise/apertus-8B/removed_mapped_predictions.csv
       hash: md5
-      md5: 98fe35ffb0c4f3ebb938a3cf37c98b31
-      size: 7695
+      md5: 9a57ff835bdb4f2eb7482a996516cda0
+      size: 7979
   compute_metrics_modelwise@apertus-8B:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/apertus-8B/mapped_predictions.csv
@@ -1564,13 +1530,13 @@ stages:
       size: 4157
     - path: predictions_model_wise/apertus-8B/mapped_predictions.csv
       hash: md5
-      md5: 26fbcbdbe6d6a1906617d134341f685e
-      size: 373292
+      md5: 9f03440cd20f3f49c981984d7d4c803d
+      size: 365451
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/apertus-8B/scores_at_5_R.yaml
       hash: md5
-      md5: 2fd96f0280563c82c2853c33ab47137a
-      size: 238
+      md5: 10258828708ce3824bfa8942879c2fa8
+      size: 237
