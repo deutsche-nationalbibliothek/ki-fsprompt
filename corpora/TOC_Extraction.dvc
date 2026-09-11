@@ -1,0 +1,13 @@
+md5: bf06189745aa850f3398ca0639edf2e6
+frozen: true
+deps:
+- path: TOC_Extraction
+  repo:
+    url: git@gitlab.prod.jason.dnb.de:aen/txt-praktikum.git
+    rev_lock: 9a4b11cd917545e4bcd93b0e8521ef673605c507
+outs:
+- md5: 1522b89a05965dd18654868b26d030e8.dir
+  size: 50806153
+  nfiles: 10827
+  hash: md5
+  path: TOC_Extraction
