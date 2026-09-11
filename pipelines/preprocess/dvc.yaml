@@ -41,3 +41,27 @@ stages:
       outs:
         - ${item.output}
 
+  preprocess_toc:
+    foreach: ${toc_datasets}
+    do:
+      desc: Docling-TOC per idn, split assignment from corpora/title/*.arrow, labels from ground-truth.arrow
+      cmd:
+        - >
+          python ../../src/preprocess_selektion.py \
+            --part_dir ${toc.part_dir} \
+            --part_suffix ${toc.part_suffix} \
+            --cleaning ${toc.cleaning} \
+            --index_file ${item.index_file} \
+            --ground_truth ../../corpora/ground-truth.arrow \
+            --csv_output ${item.output}
+      deps:
+        - ../../src/preprocess_selektion.py
+        - ../../src/data_adapters
+        - ${toc.part_dir}
+        - ../../corpora/ground-truth.arrow
+        - ${item.index_file}
+      params:
+        - toc
+      outs:
+        - ${item.output}
+

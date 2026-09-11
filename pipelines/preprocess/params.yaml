@@ -12,3 +12,19 @@ datasets:
     index_file: ../../corpora/title/test.arrow
     output: test.csv
 
+toc:
+  part_dir: ../../corpora/TOC_Extraction
+  part_suffix: _TOC.md
+  cleaning: toc
+
+toc_datasets:
+  toc_train:
+    index_file: ../../corpora/title/train.arrow
+    output: toc/train.csv
+  toc_validate:
+    index_file: ../../corpora/title/validate.arrow
+    output: toc/validate.csv
+  toc_test:
+    index_file: ../../corpora/title/test.arrow
+    output: toc/test.csv
+
