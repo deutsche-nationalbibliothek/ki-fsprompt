@@ -1,3 +1,6 @@
 /validate.csv
 /train.csv
 /test.csv
+/train.arrow
+/test.arrow
+/validate.arrow

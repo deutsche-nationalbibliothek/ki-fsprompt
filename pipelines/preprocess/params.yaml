@@ -12,19 +12,27 @@ datasets:
     index_file: ../../corpora/title/test.arrow
     output: test.csv
 
+#Cezars Teile:
+
+# 1: TOC-Extraktion
 toc:
   part_dir: ../../corpora/TOC_Extraction
   part_suffix: _TOC.md
   cleaning: toc
+  # drop: documents without a TOC ("Kein Inhaltsverzeichnis gefunden") are removed from CSV and index
+  empty_policy: drop
 
 toc_datasets:
   toc_train:
     index_file: ../../corpora/title/train.arrow
     output: toc/train.csv
+    index_output: toc/train.arrow
   toc_validate:
     index_file: ../../corpora/title/validate.arrow
     output: toc/validate.csv
+    index_output: toc/validate.arrow
   toc_test:
     index_file: ../../corpora/title/test.arrow
     output: toc/test.csv
+    index_output: toc/test.arrow
 

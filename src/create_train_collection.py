@@ -46,6 +46,7 @@ class CollectionCreator:
         debug=False,
     ):
         self.collection_name = collection_name
+        self.source = f"text_data={text_data}"
         self.text_type = text_type
         self.chunk_size = chunk_size
         self.max_n_docs = max_n_docs
@@ -101,6 +102,17 @@ class CollectionCreator:
         )
         if client.collections.exists(self.collection_name):
             LOGGER.info("Collection %s already exists", self.collection_name)
+            # Guard: only overwrite a collection that was built from the same input CSV,
+            # so retrieval pools of different experimental conditions never replace each other.
+            existing_source = client.collections.get(self.collection_name).config.get().description
+            if existing_source != self.source:
+                client.close()
+                raise RuntimeError(
+                    f"Collection '{self.collection_name}' was built from {existing_source!r}, "
+                    f"not from {self.source!r}. Refusing to overwrite it. Choose a different "
+                    "retrieve.weaviate_collection_name for this condition, or delete the "
+                    "collection manually if replacing it is really intended."
+                )
             if overwrite:
                 client.collections.delete(self.collection_name)
                 LOGGER.info("Deleted old collection %s", self.collection_name)
@@ -110,6 +122,7 @@ class CollectionCreator:
 
         client.collections.create(
             name=self.collection_name,
+            description=self.source,
             properties=[
                 wvc.config.Property(
                     name="label_ids",

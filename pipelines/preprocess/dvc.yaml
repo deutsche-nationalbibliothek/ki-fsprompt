@@ -41,6 +41,11 @@ stages:
       outs:
         - ${item.output}
 
+
+#Cezars Teile:
+
+# 1: TOC-Extraktion 
+
   preprocess_toc:
     foreach: ${toc_datasets}
     do:
@@ -51,9 +56,11 @@ stages:
             --part_dir ${toc.part_dir} \
             --part_suffix ${toc.part_suffix} \
             --cleaning ${toc.cleaning} \
+            --empty_policy ${toc.empty_policy} \
             --index_file ${item.index_file} \
             --ground_truth ../../corpora/ground-truth.arrow \
-            --csv_output ${item.output}
+            --csv_output ${item.output} \
+            --index_output ${item.index_output}
       deps:
         - ../../src/preprocess_selektion.py
         - ../../src/data_adapters
@@ -64,4 +71,5 @@ stages:
         - toc
       outs:
         - ${item.output}
+        - ${item.index_output}
 

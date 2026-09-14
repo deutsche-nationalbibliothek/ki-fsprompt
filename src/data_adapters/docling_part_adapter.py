@@ -6,6 +6,8 @@ import pyarrow
 from .base import BaseDataAdapter
 from .cleaners import CLEANERS
 
+EMPTY_POLICIES = ("keep", "drop")
+
 
 class DoclingPartAdapter(BaseDataAdapter):
     """Adapter for a single Docling-extracted document part (TOC, abstract, ...).
@@ -25,6 +27,7 @@ class DoclingPartAdapter(BaseDataAdapter):
         ground_truth_file: str,
         kind: str = "title",
         cleaning: str = "none",
+        empty_policy: str = "keep",
         options=None,
         logger=None,
     ) -> None:
@@ -35,10 +38,13 @@ class DoclingPartAdapter(BaseDataAdapter):
         self.ground_truth_file = Path(ground_truth_file)
         self.kind = kind
         self.cleaning = cleaning
+        self.empty_policy = empty_policy
 
     def _validate_inputs(self) -> None:
         if self.cleaning not in CLEANERS:
             raise ValueError(f"Unknown cleaning '{self.cleaning}'. Options: {sorted(CLEANERS)}")
+        if self.empty_policy not in EMPTY_POLICIES:
+            raise ValueError(f"Unknown empty_policy '{self.empty_policy}'. Options: {EMPTY_POLICIES}")
         if not self.part_dir.is_dir():
             raise FileNotFoundError(f"part_dir does not exist or is not a directory: {self.part_dir}")
         for label, path in (
@@ -103,9 +109,14 @@ class DoclingPartAdapter(BaseDataAdapter):
         data["label_ids"] = data["label_ids"].apply(lambda items: ", ".join(items))
         data = data[["text", "doc_id", "label_ids", "label_texts"]]
 
-        n_empty = (data["text"] == "").sum()
-        if n_empty:
-            self.logger.warning("%s of %s documents have an empty text after cleaning", n_empty, len(data))
+        empty = data["text"] == ""
+        if empty.any():
+            self.logger.warning(
+                "%s of %s documents have an empty text after cleaning (empty_policy=%s): %s",
+                int(empty.sum()), len(data), self.empty_policy, ", ".join(data.loc[empty, "doc_id"]),
+            )
+            if self.empty_policy == "drop":
+                data = data.loc[~empty].reset_index(drop=True)
 
         self.logger.info("Normalized adapter data. shape=%s", data.shape)
         return data

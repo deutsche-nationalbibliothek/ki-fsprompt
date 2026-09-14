@@ -2,9 +2,13 @@ from argparse import ArgumentParser
 import logging
 from pathlib import Path
 
+import pyarrow
+import pyarrow.ipc
+
 from data_adapters import AdapterOptions, DoclingPartAdapter
 from data_adapters.cleaners import CLEANERS
 from data_adapters.constants import REQUIRED_COLUMNS
+from data_adapters.docling_part_adapter import EMPTY_POLICIES
 
 
 LOGGER = logging.getLogger(__name__)
@@ -40,6 +44,18 @@ def build_parser() -> ArgumentParser:
         default="none",
         choices=sorted(CLEANERS),
         help="Part-specific text cleaning applied after header removal (default: none)",
+    )
+    parser.add_argument(
+        "--empty_policy",
+        default="keep",
+        choices=EMPTY_POLICIES,
+        help="What to do with documents whose text is empty after cleaning (default: keep)",
+    )
+    parser.add_argument(
+        "--index_output",
+        default=None,
+        help="Optional Arrow index containing only the documents written to --csv_output. "
+        "Needed for evaluation when --empty_policy drop removes documents.",
     )
     parser.add_argument(
         "--csv_output",
@@ -95,6 +111,7 @@ def main() -> None:
         ground_truth_file=args.ground_truth,
         kind=args.kind,
         cleaning=args.cleaning,
+        empty_policy=args.empty_policy,
         options=options,
         logger=LOGGER,
     )
@@ -109,6 +126,26 @@ def main() -> None:
 
     LOGGER.info("Wrote preprocessed output to %s", out_path)
     LOGGER.info("Rows=%s Columns=%s", len(normalized), output_columns)
+
+    if args.index_output:
+        n_rows = write_filtered_index(args.index_file, set(normalized["doc_id"]), Path(args.index_output))
+        LOGGER.info("Wrote filtered index to %s (rows=%s)", args.index_output, n_rows)
+
+
+def write_filtered_index(index_file: str, doc_ids: set[str], out_path: Path) -> int:
+    """Copy the split index, keeping only rows whose idn is in doc_ids (original order preserved)."""
+    index = pyarrow.ipc.open_file(index_file).read_all()
+    # pyarrow cannot filter string_view columns (as written by polars), so cast them to string.
+    index = index.cast(pyarrow.schema([
+        pyarrow.field(f.name, pyarrow.string() if pyarrow.types.is_string_view(f.type) else f.type)
+        for f in index.schema
+    ]))
+    keep = pyarrow.array([str(idn) in doc_ids for idn in index.column("idn").to_pylist()])
+    filtered = index.filter(keep)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with pyarrow.ipc.new_file(out_path, filtered.schema) as writer:
+        writer.write_table(filtered)
+    return filtered.num_rows
 
 
 if __name__ == "__main__":
