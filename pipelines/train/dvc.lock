@@ -65,8 +65,8 @@ stages:
     deps:
     - path: ../../src/create_train_collection.py
       hash: md5
-      md5: 936a45de4988dd597462c3214566c172
-      size: 12987
+      md5: fb2d5fc7ff5b9f314b14169f6aa143c7
+      size: 13758
     - path: ../preprocess/train.csv
       hash: md5
       md5: 38bf27a271bf53faf79203f9a1c4cf5b
@@ -82,8 +82,8 @@ stages:
     outs:
     - path: create_train_collection_manifest.json
       hash: md5
-      md5: eb80680dd2a31b2fbbfbbf90faf9370f
-      size: 268
+      md5: e80a4a4af38cf60e969d9936c42e441e
+      size: 288
   retrieve:
     cmd:
     - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/validate.csv
