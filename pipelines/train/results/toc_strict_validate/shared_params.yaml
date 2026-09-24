@@ -38,7 +38,7 @@ completion:
   # how many docs to process in one pass of inference with vllm
   prompt_template_info: templates/model_to_template.json
   prompt_template_dir: templates/
-  custom_instruction: instructions/instruction_toc.txt
+  custom_instruction: instructions/instruction03.txt
   vllm:
     samplingparams:
       max_new_tokens: 256

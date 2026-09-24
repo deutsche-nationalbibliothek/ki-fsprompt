@@ -1,6 +1,6 @@
 train:
   # where is the actual text data for training stored? 
-  text_data: ../preprocess/toc_strict/train.csv
+  text_data: ../preprocess/train.csv
   # the name of the weaviate collection to store the training data for retrieval
   # text_type: title or ft
   # `ft` tells the preprocessing to chunk the text data into smaller pieces for embedding and storage in weaviate
@@ -8,13 +8,13 @@ train:
   # chunk_size: the number of characters to chunk the text into for embedding and storage in weaviate
   chunk_size: 512
   # batch_size: the number of documents to process in a batch for embedding and storage in weaviate
-  batch_size: 8
+  batch_size: 100
   # dvc-tracked output manifest for this stage run
 
 predict:
    # where is the actual text data for indexing stored? 
-  text_data: ../preprocess/toc_strict/validate.csv
-  index: ../preprocess/toc_strict/validate.arrow
+  text_data: ../preprocess/validate.csv
+  index: ../../corpora/title/validate.arrow
   text_type: title
 # retrieve:
 #   input_text_data: ../preprocess/validate.csv

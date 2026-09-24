@@ -73,3 +73,32 @@ stages:
         - ${item.output}
         - ${item.index_output}
 
+
+# 2: TOC-Extraktion ohne Strukturwoerter
+
+  preprocess_toc_strict:
+    foreach: ${toc_strict_datasets}
+    do:
+      desc: Like preprocess_toc, but with structural headings and repeated lines removed
+      cmd:
+        - >
+          python ../../src/preprocess_selektion.py \
+            --part_dir ${toc_strict.part_dir} \
+            --part_suffix ${toc_strict.part_suffix} \
+            --cleaning ${toc_strict.cleaning} \
+            --empty_policy ${toc_strict.empty_policy} \
+            --index_file ${item.index_file} \
+            --ground_truth ../../corpora/ground-truth.arrow \
+            --csv_output ${item.output} \
+            --index_output ${item.index_output}
+      deps:
+        - ../../src/preprocess_selektion.py
+        - ../../src/data_adapters
+        - ${toc_strict.part_dir}
+        - ../../corpora/ground-truth.arrow
+        - ${item.index_file}
+      params:
+        - toc_strict
+      outs:
+        - ${item.output}
+        - ${item.index_output}

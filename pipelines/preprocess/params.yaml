@@ -36,3 +36,24 @@ toc_datasets:
     output: toc/test.csv
     index_output: toc/test.arrow
 
+
+# 2: TOC-Extraktion mit Entfernung der Strukturwoerter (Vergleichsbedingung zu 1)
+toc_strict:
+  part_dir: ../../corpora/TOC_Extraction
+  part_suffix: _TOC.md
+  cleaning: toc_strict
+  empty_policy: drop
+
+toc_strict_datasets:
+  toc_strict_train:
+    index_file: ../../corpora/title/train.arrow
+    output: toc_strict/train.csv
+    index_output: toc_strict/train.arrow
+  toc_strict_validate:
+    index_file: ../../corpora/title/validate.arrow
+    output: toc_strict/validate.csv
+    index_output: toc_strict/validate.arrow
+  toc_strict_test:
+    index_file: ../../corpora/title/test.arrow
+    output: toc_strict/test.csv
+    index_output: toc_strict/test.arrow

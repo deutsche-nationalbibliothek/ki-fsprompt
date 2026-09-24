@@ -41,9 +41,9 @@ stages:
       size: 828221
     - path: ../../src/data_adapters
       hash: md5
-      md5: 75b294e1759d1001649555da7d43644e.dir
-      size: 29470
-      nfiles: 15
+      md5: cd6aaadd7dc0252d9ee8d8a61e8322c2.dir
+      size: 48554
+      nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
       md5: b2919a7b2188b108dd0bc4a7cfeda976
@@ -73,9 +73,9 @@ stages:
       size: 74512
     - path: ../../src/data_adapters
       hash: md5
-      md5: 75b294e1759d1001649555da7d43644e.dir
-      size: 29470
-      nfiles: 15
+      md5: cd6aaadd7dc0252d9ee8d8a61e8322c2.dir
+      size: 48554
+      nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
       md5: b2919a7b2188b108dd0bc4a7cfeda976
@@ -105,9 +105,9 @@ stages:
       size: 81029
     - path: ../../src/data_adapters
       hash: md5
-      md5: 75b294e1759d1001649555da7d43644e.dir
-      size: 29470
-      nfiles: 15
+      md5: f633b20967047c25bca96bcd3bc22a07.dir
+      size: 39990
+      nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
       md5: b2919a7b2188b108dd0bc4a7cfeda976
@@ -143,8 +143,8 @@ stages:
       size: 47954
     - path: ../../src/data_adapters
       hash: md5
-      md5: 13da73500f64f5655aec94036ae2c30d.dir
-      size: 39990
+      md5: 729450d7b70c5eba48e2a63faadafac8.dir
+      size: 48554
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -164,8 +164,8 @@ stages:
       size: 32610
     - path: toc/validate.csv
       hash: md5
-      md5: ae10fd5d80aeae5a538e41096b8e77a7
-      size: 3053290
+      md5: 7f0ac4eb7c9d5de7a86ffda81b7f48ce
+      size: 3037681
   preprocess_toc@toc_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -188,8 +188,8 @@ stages:
       size: 507410
     - path: ../../src/data_adapters
       hash: md5
-      md5: 13da73500f64f5655aec94036ae2c30d.dir
-      size: 39990
+      md5: 729450d7b70c5eba48e2a63faadafac8.dir
+      size: 48554
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -209,8 +209,8 @@ stages:
       size: 351210
     - path: toc/train.csv
       hash: md5
-      md5: 1495b837e38b324fdbd08512ef3e5e10
-      size: 30791017
+      md5: a07ec111e819de4f3c4ffed418af4d0f
+      size: 30635567
   preprocess_toc@toc_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -233,8 +233,8 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 13da73500f64f5655aec94036ae2c30d.dir
-      size: 39990
+      md5: 729450d7b70c5eba48e2a63faadafac8.dir
+      size: 48554
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -254,5 +254,143 @@ stages:
       size: 36514
     - path: toc/test.csv
       hash: md5
-      md5: 5fa6cba8213c078db00c650aa73b139b
-      size: 3499372
+      md5: 505b2c8a0dc53a4e06d6ec477dfafc35
+      size: 3476092
+  preprocess_toc_strict@toc_strict_test:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
+      \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
+      drop \\\n  --index_file ../../corpora/title/test.arrow \\\n  --ground_truth
+      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/test.csv \\\n\
+      \  --index_output toc_strict/test.arrow\n"
+    deps:
+    - path: ../../corpora/TOC_Extraction
+      hash: md5
+      md5: 1522b89a05965dd18654868b26d030e8.dir
+      size: 50806153
+      nfiles: 10827
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/test.arrow
+      hash: md5
+      md5: 12895b886ef1dbf9609dd26a392a7c71
+      size: 53778
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 729450d7b70c5eba48e2a63faadafac8.dir
+      size: 48554
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 0f256139bfe892cf1c3e0fd861dcf23f
+      size: 4944
+    params:
+      params.yaml:
+        toc_strict:
+          part_dir: ../../corpora/TOC_Extraction
+          part_suffix: _TOC.md
+          cleaning: toc_strict
+          empty_policy: drop
+    outs:
+    - path: toc_strict/test.arrow
+      hash: md5
+      md5: 9da1db95ae79908410be26c7de7ca6c3
+      size: 36514
+    - path: toc_strict/test.csv
+      hash: md5
+      md5: ff76c6557a5814d1b0f117bd31b0eaad
+      size: 3366680
+  preprocess_toc_strict@toc_strict_train:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
+      \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
+      drop \\\n  --index_file ../../corpora/title/train.arrow \\\n  --ground_truth
+      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/train.csv \\\n\
+      \  --index_output toc_strict/train.arrow\n"
+    deps:
+    - path: ../../corpora/TOC_Extraction
+      hash: md5
+      md5: 1522b89a05965dd18654868b26d030e8.dir
+      size: 50806153
+      nfiles: 10827
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/train.arrow
+      hash: md5
+      md5: 05253401da8ae1c79d15d9863cc6a017
+      size: 507410
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: e3be5815c214a98bbc1e748f99a164cb.dir
+      size: 48554
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 0f256139bfe892cf1c3e0fd861dcf23f
+      size: 4944
+    params:
+      params.yaml:
+        toc_strict:
+          part_dir: ../../corpora/TOC_Extraction
+          part_suffix: _TOC.md
+          cleaning: toc_strict
+          empty_policy: drop
+    outs:
+    - path: toc_strict/train.arrow
+      hash: md5
+      md5: e77c502049a17b80cedc94c53ef917c8
+      size: 351138
+    - path: toc_strict/train.csv
+      hash: md5
+      md5: dba89cfa253959b122c25aafe1247269
+      size: 29429213
+  preprocess_toc_strict@toc_strict_validate:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
+      \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
+      drop \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --ground_truth
+      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/validate.csv
+      \\\n  --index_output toc_strict/validate.arrow\n"
+    deps:
+    - path: ../../corpora/TOC_Extraction
+      hash: md5
+      md5: 1522b89a05965dd18654868b26d030e8.dir
+      size: 50806153
+      nfiles: 10827
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: e3be5815c214a98bbc1e748f99a164cb.dir
+      size: 48554
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 0f256139bfe892cf1c3e0fd861dcf23f
+      size: 4944
+    params:
+      params.yaml:
+        toc_strict:
+          part_dir: ../../corpora/TOC_Extraction
+          part_suffix: _TOC.md
+          cleaning: toc_strict
+          empty_policy: drop
+    outs:
+    - path: toc_strict/validate.arrow
+      hash: md5
+      md5: 4d286263689d8e1aa2b6c3fcc1ff8609
+      size: 32610
+    - path: toc_strict/validate.csv
+      hash: md5
+      md5: cbe3af6471d5ce7bb18c6b6cdd3f85dc
+      size: 2943206
