@@ -24,7 +24,12 @@ class IndividualPromptBuilder:
         Returns:
             pd.DataFrame: DataFrame containing the parsed prompts.
         """
-        prompts = pd.read_csv(self.parsed_prompt_file)
+        prompts = (
+            pd.read_csv(self.parsed_prompt_file)
+            if isinstance(self.parsed_prompt_file, (str, bytes))
+            else self.parsed_prompt_file
+        )
+
         # columns: doc_id, text, label_ids, label_texts, prompt_text, prompt_labels, prompt_label_texts, similarity
         prompts_gr = (
             prompts[["doc_id", "prompt_text", "prompt_label_texts"]]
