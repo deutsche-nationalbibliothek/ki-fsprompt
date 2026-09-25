@@ -1,0 +1,16 @@
+f1@5:
+  mode: doc-avg
+  value: 0.2748709
+  support: 837.0
+prec@5:
+  mode: doc-avg
+  value: 0.273855
+  support: 837.0
+rec@5:
+  mode: doc-avg
+  value: 0.3024533
+  support: 837.0
+rprec@5:
+  mode: doc-avg
+  value: 0.3341099
+  support: 837.0

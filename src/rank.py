@@ -9,6 +9,7 @@ import pandas as pd
 from tqdm import tqdm
 import json
 import os
+from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.sampling_params import StructuredOutputsParams
 from vllm.engine.arg_utils import EngineArgs
@@ -22,6 +23,13 @@ def safe_int_conversion(rel):
         return int(rel)
     except (TypeError, ValueError):
         return 0
+
+
+def extract_score(raw_text: str) -> int:
+    """Extract the final relevance score, tolerating a leading <think>...</think> block."""
+    content = re.sub(r"<think>.*?</think>", "", raw_text, flags=re.DOTALL).strip()
+    match = re.search(r"-?\d+", content)
+    return int(match.group()) if match else 0
 
 
 class Ranker:
@@ -39,8 +47,6 @@ class Ranker:
         predictions_file: str,
         output_file: str,
         custom_instructions: str,
-        prompt_template_info: str,
-        prompt_template_dir: str,
         params_file: str,
     ):
         """Initialiazes the Ranker class.
@@ -79,8 +85,17 @@ class Ranker:
             for score in range(self.min_confidence, self.max_confidence + 1)
         ]
 
+        # opt-in chain-of-thought before the relevance score; off by default
+        self.enable_thinking = self.p_ranking.get("enable_thinking", False)
+        self.reasoning_parser = self.p_ranking.get("reasoning_parser")
+        self.max_reasoning_tokens = self.p_ranking.get("max_reasoning_tokens", 128)
+
+        max_tokens = 5  # small number of tokens to generate, so to fit only one number
+        if self.enable_thinking:
+            max_tokens += self.max_reasoning_tokens
+
         self.vllm_samplingparams = SamplingParams(
-            max_tokens=5,  # small number of tokens to generate, so to fit only one number
+            max_tokens=max_tokens,
             min_tokens=1,
             temperature=self.temperature,
             presence_penalty=self.global_samplingparams.get("presence_penalty", 0),
@@ -90,6 +105,10 @@ class Ranker:
             structured_outputs=StructuredOutputsParams(choice=self.allowed_scores),
         )
 
+        optional_engineargs = {}
+        if self.enable_thinking and self.reasoning_parser:
+            optional_engineargs["reasoning_parser"] = self.reasoning_parser
+
         self.vllm_engineargs = EngineArgs(
             model=self.ranking_model,
             gpu_memory_utilization=self.vllm_engineargs.get(
@@ -97,8 +116,12 @@ class Ranker:
             ),
             tensor_parallel_size=self.vllm_engineargs.get("tensor_parallel_size", 2),
             dtype=self.vllm_engineargs.get("dtype", "auto"),
+            **optional_engineargs,
         )
         self.llm = LLM.from_engine_args(self.vllm_engineargs)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.ranking_model, trust_remote_code=True
+        )
 
         # Prepare prompt
         with open(custom_instructions, encoding="utf-8") as f:
@@ -107,31 +130,13 @@ class Ranker:
         self.ranking_instruction = self.ranking_instruction.format(
             min_confidence=self.min_confidence, max_confidence=self.max_confidence
         )
-        self.prompt_template_info = prompt_template_info
-        
-        self.prompt_template_dir = prompt_template_dir
-        
-        with open(self.prompt_template_info) as f:
-            content = json.load(f)
-            self.prompt_template_file = os.path.join(
-                self.prompt_template_dir, content[self.ranking_model]
-            )
-        with open(self.prompt_template_file) as f:
-            template = json.load(f)
-        self.prompt_frame = template["instruction"] + template["example"]
-        self.prompt_frame = self.prompt_frame.format(
-            custom_instruction=self.ranking_instruction, text="{text}"
-        )
 
         # Read dataset
         self.data = pd.read_csv(dataset_file)
         self.data = self.data[["doc_id", "text"]]
         self.data = self.data.set_index("doc_id")
 
-        if self.debug:
-            print("Prompt frame: ", self.prompt_frame)
-            print("Data: ", self.data.shape)
-            print(self.data.head())
+
 
         # Read predictions
         self.predictions = pd.read_csv(predictions_file)
@@ -197,12 +202,25 @@ class Ranker:
             for l in labels:
                 l_sub = l
                 if isinstance(l, (float, int)):
-                    l_sub = str(keywords)  # Convert numeric types to string
+                    l_sub = str(l)  # Convert numeric types to string
                 elif l is None:
                     l_sub = ""  # Handle None values
                 l_sub = re.sub(r"[{}]", "", l_sub)
-                prompt = self.prompt_frame.format(
-                    text="Text: {}\nSchlagwort:{}".format(text, l_sub)
+                messages = [
+                    {"role": "system", "content": self.ranking_instruction},
+                    {
+                        "role": "user",
+                        "content": "Text: {}\nSchlagwort:{}".format(text, l_sub),
+                    },
+                ]
+                # enable_thinking/thinking cover Qwen3/Gemma4 vs. Granite/DeepSeek-V3.1 kwarg naming;
+                # templates that don't declare either are unaffected
+                prompt = self.tokenizer.apply_chat_template(
+                    messages,
+                    tokenize=False,
+                    add_generation_prompt=True,
+                    enable_thinking=self.enable_thinking,
+                    thinking=self.enable_thinking,
                 )
                 prompts.append(prompt)
 
@@ -211,7 +229,7 @@ class Ranker:
             assert len(answers) == len(
                 labels
             ), "Number of answers does not match number of labels"
-            answers_ints = [int(answer.strip()) for answer in answers]
+            answers_ints = [extract_score(answer) for answer in answers]
             ranked_kw = list(zip(labels, answers_ints))
 
             if self.debug:
@@ -318,12 +336,6 @@ def execute():
     parser.add_argument(
         "--custom_instructions", help="Custom Instructions for Ranking", type=str, required=False
     )
-    parser.add_argument(
-        "--prompt_template_info", help="Prompt Template Info Filename/Path", type=str, required=True
-    )
-    parser.add_argument(
-        "--prompt_template_dir", help="Prompt Template Directory", type=str, required=True
-    )
 
     args = parser.parse_args()
     ranker = Ranker(
@@ -331,8 +343,6 @@ def execute():
         args.predictions_file,
         args.output_file,
         args.custom_instructions,
-        args.prompt_template_info,
-        args.prompt_template_dir,
         args.params_file,
     )
     ranker.rank()

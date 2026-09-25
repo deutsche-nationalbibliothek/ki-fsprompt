@@ -36,8 +36,6 @@ completion:
   # this is a recycled name used for the output file of any completion run 
   completion_filename: completions.csv
   # how many docs to process in one pass of inference with vllm
-  prompt_template_info: templates/model_to_template.json
-  prompt_template_dir: templates/
   custom_instruction: instructions/instruction03.txt
   vllm:
     samplingparams:
@@ -53,6 +51,31 @@ completion:
     llama-3B-instruct:
       hf_model_name: meta-llama/Llama-3.2-3B-Instruct
       short_name: llama-3B
+    ministral-3-8B-instruct:
+      hf_model_name: mistralai/Ministral-3-8B-Instruct-2512
+      short_name: ministral-3-8B-instruct
+    ministral-3-14B-instruct:
+      hf_model_name: mistralai/Ministral-3-14B-Instruct-2512
+      short_name: ministral-3-14B-instruct
+    qwen-3p5-35B-A3B:
+      hf_model_name: Qwen/Qwen3.5-35B-A3B
+      short_name: qwen-3p5-35B-A3B
+    qwen-3-4B:
+      hf_model_name: Qwen/Qwen3-4B
+      short_name: qwen-3-4B
+      # gated repo
+    gemma-4-26B-A4B-it:
+      hf_model_name: google/gemma-4-26B-A4B-it
+      short_name: gemma-4-26B-A4B-it
+    occiglot-7B-eu5-instruct:
+      hf_model_name: occiglot/occiglot-7b-eu5-instruct
+      short_name: occiglot-7B
+    phi-3p5-mini-instruct:
+      hf_model_name: microsoft/Phi-3.5-mini-instruct
+      short_name: phi-3p5-mini
+    apertus-8B:
+      hf_model_name: swiss-ai/Apertus-8B-Instruct-2509
+      short_name: apertus-8B
 
 mapping:
   output_file: mapped_predictions.csv
@@ -66,7 +89,7 @@ mapping:
     alpha: 0.7       # 0 - 1
 
 ranking:
-  model: meta-llama/Meta-Llama-3.1-8B-Instruct
+  model: Qwen/Qwen3.8-27B
   score_param: relevance # choice: relevance, score, cosine_similarity, hybrid_score
   temperature: 0
   instruction: instructions/ranking_instruction03.json
@@ -75,6 +98,12 @@ ranking:
   threshold_confidence: 0
   max_confidence: 10
   output_file: ranked_predictions.csv
+  # opt-in chain-of-thought before the relevance score is emitted
+  enable_thinking: false
+  # vLLM reasoning parser name (e.g. qwen3, deepseek_r1, gemma4, mistral); required if enable_thinking is true
+  reasoning_parser: None
+  # extra token budget reserved for reasoning, added on top of the score's own token budget
+  max_reasoning_tokens: 512
 
 train_xgb:
   model_file: xgb_model.rds

@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-09-02T07:25:40.023255+00:00",
+  "created_at": "2026-09-24T08:55:02.355855+00:00",
   "collection_name": "title_train",
   "embedding_model": "BAAI/bge-m3",
   "text_type": "title",
@@ -7,5 +7,6 @@
   "inserted_count": 9043,
   "failed_count": 0,
   "overwrite": true,
-  "weaviate_port": 8087
+  "weaviate_port": 8087,
+  "tei_port": 8080
 }

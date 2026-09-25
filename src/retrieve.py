@@ -2,6 +2,7 @@ import argparse
 import pandas as pd
 import numpy as np
 import requests
+import unicodedata
 from weaviate.classes.query import MetadataQuery
 import weaviate
 from tqdm import tqdm
@@ -17,7 +18,13 @@ class ExampleRetriever:
         host="8090",
         debug=False,
     ):
-        self.data = pd.read_csv(input_text_data)
+        # if input_text_data is a string, it is assumed to be a file path; 
+        # otherwise, it is assumed to be a DataFrame
+        self.data = (
+            pd.read_csv(input_text_data)
+            if isinstance(input_text_data, (str, bytes))
+            else input_text_data
+        )
         
         required_columns = ["text", "doc_id", "label_ids", "label_texts"]
         missing_columns = [col for col in required_columns if col not in self.data.columns]
@@ -42,7 +49,7 @@ class ExampleRetriever:
         total_results = []
         for i, row in tqdm(self.data.iterrows()):
             # columns: text,doc_id,label_ids,label_texts
-
+            row["text"] = unicodedata.normalize("NFC", row["text"])
             embedding = list(
                 np.array(
                     requests.post(
@@ -79,8 +86,9 @@ class ExampleRetriever:
         weaviate_client.close()
         # Save the results to a CSV file
         results_df = pd.DataFrame(total_results)
-        results_df.to_csv(self.output_file, index=False)
-        print(f"Results saved to {self.output_file}")
+        if self.output_file:
+            results_df.to_csv(self.output_file, index=False)
+            print(f"Results saved to {self.output_file}")
         return results_df
 
 

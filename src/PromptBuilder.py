@@ -8,14 +8,10 @@ class IndividualPromptBuilder:
         self,
         parsed_prompt_file: str,
         custom_instruction: str,
-        template_file: str,
         debug: bool = False,
     ):
         self.parsed_prompt_file = parsed_prompt_file
         self.custom_instruction = custom_instruction
-        self.template_file = template_file
-        with open(self.template_file) as tf:
-            self.template = json.load(tf)
         self.debug = debug
 
         self.prompts_by_id = self.parse_retrieved_prompts()
@@ -28,7 +24,12 @@ class IndividualPromptBuilder:
         Returns:
             pd.DataFrame: DataFrame containing the parsed prompts.
         """
-        prompts = pd.read_csv(self.parsed_prompt_file)
+        prompts = (
+            pd.read_csv(self.parsed_prompt_file)
+            if isinstance(self.parsed_prompt_file, (str, bytes))
+            else self.parsed_prompt_file
+        )
+
         # columns: doc_id, text, label_ids, label_texts, prompt_text, prompt_labels, prompt_label_texts, similarity
         prompts_gr = (
             prompts[["doc_id", "prompt_text", "prompt_label_texts"]]
@@ -40,19 +41,22 @@ class IndividualPromptBuilder:
         )
         return prompts_gr.to_dict(orient="index")
 
-    def build_prompt(self, doc_id: str) -> str:
+    def build_messages(self, doc_id: str, text: str = "") -> list[dict]:
+        """Build a chat-message list for the given document.
+
+        Args:
+            doc_id (str): Id of the document to build the prompt for.
+            text (str): The (possibly truncated) document text to append as the final user turn.
+        Returns:
+            list[dict]: Messages with roles system/user/assistant, ready for
+                        `tokenizer.apply_chat_template()`.
+        """
         prompt_examples = self.prompts_by_id[doc_id]["prompt_examples"]
+        messages = []
         if self.custom_instruction != "":
-            prompt = self.template["instruction"].format(
-                custom_instruction=self.custom_instruction
-            )
-        else:
-            prompt = ""
-        for text, keywords in prompt_examples:
-            text = re.sub(r"[{}]", "", text)
-            prompt += self.template["example"].format(text=text)
-            if self.debug:
-                print("Prompt after example: ", prompt)
+            messages.append({"role": "system", "content": self.custom_instruction})
+        for example_text, keywords in prompt_examples:
+            example_text = re.sub(r"[{}]", "", example_text)
             if isinstance(keywords, (float, int)):
                 keywords = str(keywords)
             elif keywords is None:
@@ -63,6 +67,9 @@ class IndividualPromptBuilder:
             structured_keywords = json.dumps(
                 {"keywords": keyword_list}, ensure_ascii=False
             )
-            prompt += self.template["keywords"].format(keywords=structured_keywords)
-        prompt += self.template["test_item"]
-        return prompt
+            messages.append({"role": "user", "content": example_text})
+            messages.append({"role": "assistant", "content": structured_keywords})
+            if self.debug:
+                print("Messages after example: ", messages)
+        messages.append({"role": "user", "content": re.sub(r"[{}]", "", text)})
+        return messages

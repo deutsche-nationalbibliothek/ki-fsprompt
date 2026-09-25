@@ -11,6 +11,7 @@ import weaviate
 import weaviate.classes as wvc
 from transformers import AutoModel, AutoTokenizer
 import logging
+from generate_embeddings import generate_embeddings
 
 import torch
 
@@ -41,6 +42,7 @@ class CollectionCreator:
         embedding_model,
         overwrite=False,
         weaviate_port=8087,
+        tei_port=8080,
         manifest_out="logs/create_train_collection_manifest.json",
         max_n_docs=None,
         debug=False,
@@ -52,6 +54,7 @@ class CollectionCreator:
         self.debug = debug
         self.overwrite = overwrite
         self.weaviate_port = weaviate_port
+        self.tei_port = tei_port
         self.manifest_out = Path(manifest_out)
 
         self.data = pd.read_csv(text_data)
@@ -148,6 +151,14 @@ class CollectionCreator:
                     index_filterable=False,
                 ),
             ],
+            vector_config=[
+                wvc.config.Configure.Vectors.text2vec_huggingface(
+                    name="doc_vector",
+                    source_properties=["doc_text"],
+                    model=self.embedding_model,
+                    endpoint_url=f"http://host.docker.internal:{self.tei_port}"
+                )
+        ],
         )
 
         return client, self.collection_name
@@ -175,7 +186,7 @@ class CollectionCreator:
             ):
 
                 # Build the object payload
-                gnd_entity_obj = {
+                doc_obj = {
                     "label_ids": row.label_ids,
                     "label_texts": (
                         row.label_texts
@@ -186,12 +197,12 @@ class CollectionCreator:
                     "doc_id": row.doc_id,
                 }
                 if self.debug:
-                    LOGGER.info("Batch object: %s", gnd_entity_obj)
+                    LOGGER.info("Batch object: %s", doc_obj)
                     LOGGER.info("Vector: %s", embeddings[pos].tolist())
 
                 # Add object to batch queue
                 batch.add_object(
-                    properties=gnd_entity_obj, vector=embeddings[pos].tolist()
+                    properties=doc_obj, vector=embeddings[pos].tolist()
                 )
 
         # Check for failed objects
@@ -252,6 +263,7 @@ class CollectionCreator:
             "failed_count": int(failed_count),
             "overwrite": bool(self.overwrite),
             "weaviate_port": int(self.weaviate_port),
+            "tei_port": int(self.tei_port),
         }
         with self.manifest_out.open("w", encoding="utf-8") as f:
             json.dump(manifest, f, indent=2)
@@ -259,7 +271,7 @@ class CollectionCreator:
 
     def create_collection_docs(self):
         client, collection = self.create_collection(overwrite=self.overwrite)
-        embeddings = self.gen_embeddings(self.data["text"].tolist())
+        embeddings = generate_embeddings(self.data["text"].tolist())
         try:
             inserted_count, failed_count = self.insert_docs(
                 client, collection, self.data, embeddings, phrase=None
@@ -317,6 +329,12 @@ def execute():
         default=True,
     )
     parser.add_argument(
+        "--tei_port",
+        help="Port for local TEI instance",
+        type=int,
+        default=8080,
+    )
+    parser.add_argument(
         "--manifest_out",
         help="Path to write a DVC-tracked run manifest",
         default="logs/create_train_collection_manifest.json",
@@ -338,17 +356,18 @@ def execute():
     LOGGER.info("Parsed args: %s", args)
 
     creator = CollectionCreator(
-        args.text_data,
-        args.collection_name,
-        args.text_type,
-        args.chunk_size,
-        args.batch_size,
-        args.embedding_model,
-        args.overwrite,
-        args.weaviate_port,
-        args.manifest_out,
-        args.max_n_docs,
-        args.debug,
+        text_data=args.text_data,
+        collection_name=args.collection_name,
+        text_type=args.text_type,
+        chunk_size=args.chunk_size,
+        batch_size=args.batch_size,
+        embedding_model=args.embedding_model,
+        overwrite=args.overwrite,
+        weaviate_port=args.weaviate_port,
+        manifest_out=args.manifest_out,
+        max_n_docs=args.max_n_docs,
+        tei_port=args.tei_port,
+        debug=args.debug,
     )
     creator.create_collection_docs()
 
