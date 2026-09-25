@@ -1,6 +1,6 @@
 [project]
-name = "ki-fsprompt-reloaded"
-version = "0.1.0"
+name = "ki-fsprompt"
+version = "0.2.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
