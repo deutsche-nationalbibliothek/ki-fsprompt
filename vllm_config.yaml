@@ -1,8 +1,13 @@
-model: Qwen/Qwen3-4B
+model: mistralai/Mistral-7B-Instruct-v0.3
 port: 9513
 gpu_memory_utilization: 0.3
-enable_auto_tool_choice: true
-tool_call_parser: hermes
-reasoning-parser: qwen3
+tokenizer_mode: mistral 
+config_format: mistral 
+load_format: mistral 
+tensor-parallel-size: 1 
+enable-auto-tool-choice: true
+tool-call-parser: mistral 
+reasoning-parser: mistral
+
 
 
