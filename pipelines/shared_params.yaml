@@ -45,9 +45,9 @@ completion:
       max_chunks: 1
       temperature: 0
   models:
-    # mistral-7B-0p3:
-    #   hf_model_name: mistralai/Mistral-7B-Instruct-v0.3
-    #   short_name: mistral-7B-0p3
+    mistral-7B-0p3:
+      hf_model_name: mistralai/Mistral-7B-Instruct-v0.3
+      short_name: mistral-7B-0p3
     llama-3B-instruct:
       hf_model_name: meta-llama/Llama-3.2-3B-Instruct
       short_name: llama-3B
@@ -67,9 +67,6 @@ completion:
     gemma-4-26B-A4B-it:
       hf_model_name: google/gemma-4-26B-A4B-it
       short_name: gemma-4-26B-A4B-it
-    # teuken-7B-instruct:
-    #   hf_model_name: openGPT-X/Teuken-7B-instruct-research-v0.4
-    #   short_name: teuken-7B
     occiglot-7B-eu5-instruct:
       hf_model_name: occiglot/occiglot-7b-eu5-instruct
       short_name: occiglot-7B
