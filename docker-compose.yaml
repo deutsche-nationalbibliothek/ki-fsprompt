@@ -1,8 +1,5 @@
 ---
-version: '3.4'
 services:
-
-
   weaviate:
     command:
     - --host
@@ -48,4 +45,26 @@ services:
     environment:
       - MODEL_ID=BAAI/bge-m3
       - HUGGINGFACE_HUB_CACHE=/data/hub
+      - MAX_CLIENT_BATCH_SIZE=200
     restart: always
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['GPU-3cce1cf1-71b5-6d8e-2fd3-1f54d1b89d24'] # GPU_1
+                #['GPU-c33c3b83-08c1-4e49-96f7-9ab1c6be7d23'] # GPU_0
+              capabilities: [compute, utility]
+    volumes:
+      - /home/huggingface-cache/:/root/.cache/huggingface
+      - ./vllm_config.yaml:/app/config/vllm_config.yaml
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    ports:
+      - "9513:9513"
+    ipc: host
+    command: --config /app/config/vllm_config.yaml

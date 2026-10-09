@@ -14,6 +14,12 @@ _MD_HEADER = re.compile(r"^#{1,6}\s*")
 _DOT_LEADER = re.compile(r"(?:\s*\.\s*){3,}")
 # Page number without parentheses at the end of a line ("... Jahre. 217").
 _TRAILING_PAGE = re.compile(r"[\s.]+\d{1,4}\s*$")
+# Docling merges the cells of TOC tables into one line, so headings appear several
+# times: "Einführung 1. Einführung", "Einleitung Einleitung Einleitung". Matches a
+# heading, optional numbers ("2.5.3.", "IV") or dots in between, and the same heading again.
+_DOUBLED = re.compile(
+    r"(?<!\w)(?P<head>\w.*?)(?:\s+(?:[\dIVXLC]+(?:\.[\dIVXLC]+)*\.?|\.+))*\s+(?P=head)(?!\w)"
+)
 
 # Structural/apparatus headings that appear in almost every thesis and therefore carry
 # no information for retrieval. Only removed when the WHOLE line consists of such a
@@ -52,7 +58,7 @@ def keep_text(text: str) -> str:
 
 
 def _clean_toc_line(line: str) -> str:
-    """Strip bullets, header markers, chapter numbering, dot leaders and page numbers."""
+    """Strip bullets, header markers, chapter numbering, dot leaders, page numbers and doubled headings."""
     line = _PAGE_NUMBER.sub("", line)
     # Loop because Docling nests bullets, headers and numbers: "- - ## 1 - 1.1. Titel".
     previous = None
@@ -60,8 +66,15 @@ def _clean_toc_line(line: str) -> str:
         previous = line
         line = _NUMBERING.sub("", _MD_HEADER.sub("", _BULLET.sub("", line)))
     line = _DOT_LEADER.sub(" ", line)
+    line = re.sub(r"\s+", " ", line).strip()
+    # Loop because headings can appear three or more times: "A 5.2 A 5.2 A".
+    # Runs before _TRAILING_PAGE so that "A 5.2 A 5" collapses to "A 5" and loses the page.
+    previous = None
+    while line != previous:
+        previous = line
+        line = _DOUBLED.sub(r"\g<head>", line)
     line = _TRAILING_PAGE.sub("", line)
-    return re.sub(r"\s+", " ", line).strip()
+    return line.strip()
 
 
 def _lookup_key(line: str) -> str:

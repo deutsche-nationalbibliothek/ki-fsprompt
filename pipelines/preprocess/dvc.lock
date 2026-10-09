@@ -143,8 +143,8 @@ stages:
       size: 47954
     - path: ../../src/data_adapters
       hash: md5
-      md5: 729450d7b70c5eba48e2a63faadafac8.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -164,8 +164,8 @@ stages:
       size: 32610
     - path: toc/validate.csv
       hash: md5
-      md5: 7f0ac4eb7c9d5de7a86ffda81b7f48ce
-      size: 3037681
+      md5: 0caadda3c4e0f6464d374cb7271f05b8
+      size: 2921416
   preprocess_toc@toc_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -188,8 +188,8 @@ stages:
       size: 507410
     - path: ../../src/data_adapters
       hash: md5
-      md5: 729450d7b70c5eba48e2a63faadafac8.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -209,8 +209,8 @@ stages:
       size: 351210
     - path: toc/train.csv
       hash: md5
-      md5: a07ec111e819de4f3c4ffed418af4d0f
-      size: 30635567
+      md5: 3b67691dd48fab7124a0aee29ac8cb5c
+      size: 29413278
   preprocess_toc@toc_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -233,8 +233,8 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 729450d7b70c5eba48e2a63faadafac8.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -254,8 +254,8 @@ stages:
       size: 36514
     - path: toc/test.csv
       hash: md5
-      md5: 505b2c8a0dc53a4e06d6ec477dfafc35
-      size: 3476092
+      md5: 180410ff37364f13f956230e4caae1c2
+      size: 3363493
   preprocess_toc_strict@toc_strict_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -279,8 +279,8 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 729450d7b70c5eba48e2a63faadafac8.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -300,8 +300,8 @@ stages:
       size: 36514
     - path: toc_strict/test.csv
       hash: md5
-      md5: ff76c6557a5814d1b0f117bd31b0eaad
-      size: 3366680
+      md5: 1865a09dc1549bcb5b20e722a62cf3ab
+      size: 3244542
   preprocess_toc_strict@toc_strict_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -325,8 +325,8 @@ stages:
       size: 507410
     - path: ../../src/data_adapters
       hash: md5
-      md5: e3be5815c214a98bbc1e748f99a164cb.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -346,8 +346,8 @@ stages:
       size: 351138
     - path: toc_strict/train.csv
       hash: md5
-      md5: dba89cfa253959b122c25aafe1247269
-      size: 29429213
+      md5: 44f8847b7837bc12755dd00568b49bcc
+      size: 28081976
   preprocess_toc_strict@toc_strict_validate:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/TOC_Extraction
@@ -371,8 +371,8 @@ stages:
       size: 47954
     - path: ../../src/data_adapters
       hash: md5
-      md5: e3be5815c214a98bbc1e748f99a164cb.dir
-      size: 48554
+      md5: 2ba01e8416ed64e049b78964b66e71bc.dir
+      size: 49595
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -392,5 +392,5 @@ stages:
       size: 32610
     - path: toc_strict/validate.csv
       hash: md5
-      md5: cbe3af6471d5ce7bb18c6b6cdd3f85dc
-      size: 2943206
+      md5: 321fdc4f78e6e4ceb54f1ff03d3866d5
+      size: 2815333

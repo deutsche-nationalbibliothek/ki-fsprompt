@@ -102,24 +102,24 @@ predictions <- read_csv(opt$predictions, show_col_types = FALSE) |>
     label_id = str_match(label_id, "(?<idn>[0-9X]{9,10})$")[, "idn"]
   )
 
-predictions_top5 <- predictions |>
+predictions_top100 <- predictions |>
   group_by(doc_id) |>
   mutate(rank = row_number(desc(score))) |>
-  filter(rank <= 5)
+  filter(rank <= 100)
 
 message("computing set retrieval scores")
-res_top5 <- compute_set_retrieval_scores(
+res_top100 <- compute_set_retrieval_scores(
   gold_standard = gold,
   seed = 1233415,
-  predicted = predictions_top5,
+  predicted = predictions_top100,
   mode = "doc-avg",
   compute_bootstrap_ci = FALSE,
   n_bt = n_bt_global
 )
 
-yaml::as.yaml(res_top5, column.major = FALSE) |>
-  str_replace_all(pattern = "- metric: ([a-z1]+)", "\\1@5:") |>
-  cat(file = file.path(RES_DIR, "scores_at_5_R.yaml"))
+yaml::as.yaml(res_top100, column.major = FALSE) |>
+  str_replace_all(pattern = "- metric: ([a-z1]+)", "\\1@100:") |>
+  cat(file = file.path(RES_DIR, "scores_at_100_R.yaml"))
 
 if (opt$set_retrieval_only) {
   quit(save = "no", status = 0)

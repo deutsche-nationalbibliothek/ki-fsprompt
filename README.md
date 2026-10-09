@@ -108,3 +108,23 @@ You can cite this work as:
     pages = "455--464"
 }
 ```
+
+## Zielgenaues Ausführen einer  Stage un der Abhängigkeiten
+
+```bash
+dvc repro pipelines/train/dvc.yaml:compute_metrics_modelwise@mistral-7B-0p3
+```
+
+## Für die interaktive Nutzung
+
+Docker services starten und beenden mit 
+
+```bash
+docker compose down vllm
+```
+
+bzw.
+
+```bash
+docker compose up vllm
+```
