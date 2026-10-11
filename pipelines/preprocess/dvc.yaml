@@ -102,3 +102,36 @@ stages:
       outs:
         - ${item.output}
         - ${item.index_output}
+
+
+# 3: Abstract, sonst Einleitung (8k)
+
+  preprocess_abstract_intro:
+    foreach: ${abstract_intro_datasets}
+    do:
+      desc: Abstract per idn, introduction (first 8k chars) as fallback where no abstract exists
+      cmd:
+        - >
+          python ../../src/preprocess_selektion.py \
+            --part_dir ${abstract_intro.primary_dir} ${abstract_intro.fallback_dir} \
+            --part_suffix ${abstract_intro.primary_suffix} ${abstract_intro.fallback_suffix} \
+            --cleaning ${abstract_intro.cleaning} \
+            --empty_policy ${abstract_intro.empty_policy} \
+            --index_file ${item.index_file} \
+            --ground_truth ../../corpora/ground-truth.arrow \
+            --csv_output ${item.output} \
+            --index_output ${item.index_output} \
+            --source_output ${item.source_output}
+      deps:
+        - ../../src/preprocess_selektion.py
+        - ../../src/data_adapters
+        - ${abstract_intro.primary_dir}
+        - ${abstract_intro.fallback_dir}
+        - ../../corpora/ground-truth.arrow
+        - ${item.index_file}
+      params:
+        - abstract_intro
+      outs:
+        - ${item.output}
+        - ${item.index_output}
+        - ${item.source_output}

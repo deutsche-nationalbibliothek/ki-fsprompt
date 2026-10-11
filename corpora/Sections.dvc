@@ -1,0 +1,13 @@
+md5: 6f3a9cae2c7ec5657ef2fab26708dfe5
+frozen: true
+deps:
+- path: datasets/Sections
+  repo:
+    url: git@gitlab.prod.jason.dnb.de:aen/txt-praktikum.git
+    rev_lock: 778785bbdd29ee288017f3db433829f613df8744
+outs:
+- md5: bdfc6069e098beb06be0163c3d39810b.dir
+  size: 519196322
+  nfiles: 51827
+  hash: md5
+  path: Sections

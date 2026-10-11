@@ -27,7 +27,7 @@ sind die Varianten überhaupt vergleichbar.
 ```
 corpora/title/{split}.arrow     welche idn zu welchem Split gehört
 corpora/ground-truth.arrow      Gold-Standard-Labels pro idn (dieselbe Quelle wie casimir)
-corpora/TOC_Extraction/         ein Docling-TOC pro idn
+corpora/Sections/TOC_Extraction/  ein Docling-TOC pro idn
           |
           v   src/preprocess_selektion.py  (DoclingPartAdapter)
 pipelines/preprocess/toc/{train,validate,test}.csv
@@ -56,7 +56,7 @@ werden.
 | `src/data_adapters/cleaners.py` | Textreinigung, aktuell `none` und `toc` |
 | `pipelines/preprocess/dvc.yaml` | neue Stage `preprocess_toc` (foreach über die drei Splits) |
 | `pipelines/preprocess/params.yaml` | Parameter der TOC-Selektion |
-| `corpora/TOC_Extraction.dvc` | `dvc import` der Docling-Daten aus `aen/txt-praktikum` |
+| `corpora/Sections.dvc` | `dvc import` von `datasets/Sections` aus `aen/txt-praktikum` (TOC, Abstract, Intro) |
 | `instructions/instruction_toc.txt` | Prompt-Instruktion für Inhaltsverzeichnisse |
 | `src/create_train_collection.py` | Schutz gegen versehentlich überschriebene Weaviate-Collections |
 
@@ -67,10 +67,11 @@ Die Datei enthält GND-URI und Labeltext bereits zusammen und ist dieselbe Quell
 die auch casimir zur Bewertung heranzieht. Damit kann die Selektion nicht
 versehentlich gegen einen anderen Gold-Standard laufen als die Evaluation.
 
-**Der Docling-Metadaten-Header wird entfernt.** Jede TOC-Datei beginnt mit einem
-Kopf wie `# Inhaltsverzeichnis — 1000080390` und `> Quelle: ... · Score: ...`.
-Das sind Angaben über die Extraktion, kein Inhalt des Buches — im Prompt wären sie
-irreführend. Entfernt werden deshalb alle Zeilen, die mit `#` oder `>` beginnen.
+**Kein Header-Entfernen mehr.** Die frühere Version der TOC-Dateien begann mit einem
+Docling-Metadatenkopf (`# Inhaltsverzeichnis — …`, `> Quelle: … · Score: …`), der
+vor dem Cleaning entfernt wurde. Die Dateien aus `datasets/Sections` enthalten diesen
+Kopf nicht mehr, der Inhalt beginnt direkt in Zeile 1. Deshalb wird keine Zeile mehr
+vorab gelöscht.
 
 **`cleaning: toc` räumt die Struktur auf.** Aufzählungszeichen, Kapitelnummern und
 Seitenangaben `(S. 5)` tragen nichts zur inhaltlichen Erschließung bei, kosten aber
@@ -79,9 +80,8 @@ Ziffern oder römischen Zahlen entfernt, damit `(S. Freud)` stehen bleibt, und
 Kapitelnummern nur bis drei Stellen je Ebene, damit eine Überschrift wie
 `1848 Revolution` nicht ihren Jahresanfang verliert.
 
-**`empty_policy: drop` mit mitgeschriebenem Index.** 13 Dokumente haben nach dem
-Entfernen des Headers keinen Text mehr — Docling hat dort kein Inhaltsverzeichnis
-gefunden. Ein leerer Text ist kein Messwert, sondern eine fehlende Beobachtung;
+**`empty_policy: drop` mit mitgeschriebenem Index.** Für 13 Dokumente gibt es keine
+TOC-Datei — Docling hat dort kein Inhaltsverzeichnis gefunden. Ein leerer Text ist kein Messwert, sondern eine fehlende Beobachtung;
 bliebe er drin, würde die Bedingung für ein Dokument bewertet, zu dem sie gar keine
 Eingabe hatte. Da die Evaluation Index und CSV zeilenweise gegeneinander hält,
 schreibt die Stage über `--index_output` einen passend gefilterten Index gleich mit.
@@ -106,7 +106,7 @@ Oder direkt, aus dem Repo-Root und ohne DVC:
 
 ```bash
 python src/preprocess_selektion.py \
-  --part_dir corpora/TOC_Extraction \
+  --part_dir corpora/Sections/TOC_Extraction \
   --part_suffix _TOC.md \
   --index_file corpora/title/test.arrow \
   --ground_truth corpora/ground-truth.arrow \
@@ -116,14 +116,15 @@ python src/preprocess_selektion.py \
   --index_output pipelines/preprocess/toc/test.arrow
 ```
 
-## Stand der Daten (geprüft am 2026-09-11)
+## Stand der Daten (geprüft am 2026-10-11)
 
-- Quelle: `aen/txt-praktikum`, Ordner `TOC_Extraction`, gepinnt auf
-  `rev_lock: 9a4b11cd…` — die Extraktion ist damit eine feste Konstante
-- 10.827 Dateien, Pfadschema `TOC_Extraction/{letztes Zeichen der idn}/{idn}_TOC.md`
-- Abdeckung: train 9043/9043 · validate 837/837 · test 943/943 (100 %)
-- 13 Dateien ohne Inhalt nach Header-Entfernung (siehe `empty_policy`)
-- Länge ohne Header in Zeichen: Median ~3.900 · p90 ~7.800 · max ~62.000
+- Quelle: `aen/txt-praktikum`, Ordner `datasets/Sections`, gepinnt auf
+  `rev_lock: 778785bb…` — die Extraktion ist damit eine feste Konstante
+- TOC: 10.814 Dateien, Pfadschema `Sections/TOC_Extraction/{letztes Zeichen der idn}/{idn}_TOC.md`
+- Ohne Metadaten-Header, der Inhalt beginnt in Zeile 1
+- Abdeckung: train 9033/9043 · validate 837/837 · test 940/943 — die 13 fehlenden
+  Dokumente haben kein TOC und werden über `empty_policy: drop` verworfen
+- Länge in Zeichen: Median ~3.900 · p90 ~7.800 · max ~62.000
 
 ## Nächste Schritte
 

@@ -16,7 +16,7 @@ datasets:
 
 # 1: TOC-Extraktion
 toc:
-  part_dir: ../../corpora/TOC_Extraction
+  part_dir: ../../corpora/Sections/TOC_Extraction
   part_suffix: _TOC.md
   cleaning: toc
   # drop: documents without a TOC ("Kein Inhaltsverzeichnis gefunden") are removed from CSV and index
@@ -39,7 +39,7 @@ toc_datasets:
 
 # 2: TOC-Extraktion mit Entfernung der Strukturwoerter (Vergleichsbedingung zu 1)
 toc_strict:
-  part_dir: ../../corpora/TOC_Extraction
+  part_dir: ../../corpora/Sections/TOC_Extraction
   part_suffix: _TOC.md
   cleaning: toc_strict
   empty_policy: drop
@@ -57,3 +57,31 @@ toc_strict_datasets:
     index_file: ../../corpora/title/test.arrow
     output: toc_strict/test.csv
     index_output: toc_strict/test.arrow
+
+
+# 3: Abstract, wo keins vorhanden ist: Einleitung (erste 8.000 Zeichen)
+abstract_intro:
+  primary_dir: ../../corpora/Sections/Abstract_Extraction
+  primary_suffix: _abstract.md
+  fallback_dir: ../../corpora/Sections/Intro_Extraction_8k
+  fallback_suffix: _intro.md
+  cleaning: none
+  # drop: documents with neither abstract nor introduction are removed from CSV and index
+  empty_policy: drop
+
+abstract_intro_datasets:
+  abstract_intro_train:
+    index_file: ../../corpora/title/train.arrow
+    output: abstract_intro/train.csv
+    index_output: abstract_intro/train.arrow
+    source_output: abstract_intro/train_sources.csv
+  abstract_intro_validate:
+    index_file: ../../corpora/title/validate.arrow
+    output: abstract_intro/validate.csv
+    index_output: abstract_intro/validate.arrow
+    source_output: abstract_intro/validate_sources.csv
+  abstract_intro_test:
+    index_file: ../../corpora/title/test.arrow
+    output: abstract_intro/test.csv
+    index_output: abstract_intro/test.arrow
+    source_output: abstract_intro/test_sources.csv

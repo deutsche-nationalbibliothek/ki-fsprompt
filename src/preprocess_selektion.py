@@ -21,12 +21,15 @@ def build_parser() -> ArgumentParser:
     parser.add_argument(
         "--part_dir",
         required=True,
-        help="Directory with one file per document, sharded by last idn character (e.g. corpora/TOC_Extraction)",
+        nargs="+",
+        help="Directory with one file per document, sharded by last idn character (e.g. corpora/Sections/TOC_Extraction). "
+        "Several directories define fallbacks in priority order: per document the first non-empty file is used.",
     )
     parser.add_argument(
         "--part_suffix",
         required=True,
-        help="Filename suffix after the idn (e.g. _TOC.md)",
+        nargs="+",
+        help="Filename suffix after the idn (e.g. _TOC.md), one per --part_dir",
     )
     parser.add_argument("--index_file", required=True, help="Input Arrow index file (split assignment)")
     parser.add_argument(
@@ -43,7 +46,7 @@ def build_parser() -> ArgumentParser:
         "--cleaning",
         default="none",
         choices=sorted(CLEANERS),
-        help="Part-specific text cleaning applied after header removal (default: none)",
+        help="Part-specific text cleaning (default: none)",
     )
     parser.add_argument(
         "--empty_policy",
@@ -56,6 +59,11 @@ def build_parser() -> ArgumentParser:
         default=None,
         help="Optional Arrow index containing only the documents written to --csv_output. "
         "Needed for evaluation when --empty_policy drop removes documents.",
+    )
+    parser.add_argument(
+        "--source_output",
+        default=None,
+        help="Optional CSV (doc_id, source) recording which --part_dir each written document was taken from.",
     )
     parser.add_argument(
         "--csv_output",
@@ -117,6 +125,7 @@ def main() -> None:
     )
 
     normalized = adapter.load()
+    sources = normalized[["doc_id", "source"]]
     output_columns = list(REQUIRED_COLUMNS)
     normalized = normalized[output_columns]
 
@@ -130,6 +139,12 @@ def main() -> None:
     if args.index_output:
         n_rows = write_filtered_index(args.index_file, set(normalized["doc_id"]), Path(args.index_output))
         LOGGER.info("Wrote filtered index to %s (rows=%s)", args.index_output, n_rows)
+
+    if args.source_output:
+        source_path = Path(args.source_output)
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        sources.to_csv(source_path, index=False)
+        LOGGER.info("Wrote document sources to %s: %s", source_path, sources["source"].value_counts().to_dict())
 
 
 def write_filtered_index(index_file: str, doc_ids: set[str], out_path: Path) -> int:
