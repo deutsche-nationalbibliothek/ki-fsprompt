@@ -11,12 +11,13 @@ embedding:
   batch_size: 300  # for embedding model processing of vocab
 
 retrieve:
-  weaviate_collection_name: toc_strict_train
+  weaviate_collection_name: title_abstract_intro_train   # make a new Collection
   manifest_out: create_train_collection_manifest.json
   # n_examples: the number of closest examples to retrieve for each document in the test set
   n_examples: 5
   # where to store the retrieved examples for each document in the test/ validate set
   prompt_file: retrieved_examples.csv
+
 
 vllm:
   engineargs:
@@ -36,7 +37,7 @@ completion:
   # this is a recycled name used for the output file of any completion run 
   completion_filename: completions.csv
   # how many docs to process in one pass of inference with vllm
-  custom_instruction: instructions/instruction_toc.txt
+  custom_instruction: instructions/instruction_title_abstract_intro.txt
   vllm:
     samplingparams:
       max_new_tokens: 256

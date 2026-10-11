@@ -135,3 +135,29 @@ stages:
         - ${item.output}
         - ${item.index_output}
         - ${item.source_output}
+
+
+# 4: Titel + (Abstract, sonst Einleitung) — Bedingung C
+
+  combine_title_abstract_intro:
+    foreach: ${title_abstract_intro_datasets}
+    do:
+      desc: Title followed by abstract (introduction as fallback), only documents with both
+      cmd:
+        - >
+          python ../../src/combine_selections.py \
+            --part Titel ${item.title_csv} \
+            --part Abstract ${item.text_csv} ${item.sources_csv} \
+            --index_file ${item.index_file} \
+            --csv_output ${item.output} \
+            --index_output ${item.index_output}
+      deps:
+        - ../../src/combine_selections.py
+        - ../../src/preprocess_selektion.py
+        - ${item.title_csv}
+        - ${item.text_csv}
+        - ${item.sources_csv}
+        - ${item.index_file}
+      outs:
+        - ${item.output}
+        - ${item.index_output}

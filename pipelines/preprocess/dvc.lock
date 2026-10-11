@@ -41,8 +41,8 @@ stages:
       size: 828221
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 6292cbb405df650f7da3ecce04d05ce2.dir
+      size: 52924
       nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
@@ -73,8 +73,8 @@ stages:
       size: 74512
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 6292cbb405df650f7da3ecce04d05ce2.dir
+      size: 52924
       nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
@@ -105,8 +105,8 @@ stages:
       size: 81029
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 6292cbb405df650f7da3ecce04d05ce2.dir
+      size: 52924
       nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
@@ -568,3 +568,123 @@ stages:
       hash: md5
       md5: 4e74b28cd72f41f78c144cc69d01e4cb
       size: 255400
+  combine_title_abstract_intro@title_abstract_intro_train:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Titel train.csv \\\n  --part
+      Abstract abstract_intro/train.csv abstract_intro/train_sources.csv \\\n  --index_file
+      ../../corpora/title/train.arrow \\\n  --csv_output title_abstract_intro/train.csv
+      \\\n  --index_output title_abstract_intro/train.arrow\n"
+    deps:
+    - path: ../../corpora/title/train.arrow
+      hash: md5
+      md5: 05253401da8ae1c79d15d9863cc6a017
+      size: 507410
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: abstract_intro/train.csv
+      hash: md5
+      md5: d304c807cd609322faa78741ba4b6cc7
+      size: 42067613
+    - path: abstract_intro/train_sources.csv
+      hash: md5
+      md5: 4e74b28cd72f41f78c144cc69d01e4cb
+      size: 255400
+    - path: train.csv
+      hash: md5
+      md5: 38bf27a271bf53faf79203f9a1c4cf5b
+      size: 2728392
+    outs:
+    - path: title_abstract_intro/train.arrow
+      hash: md5
+      md5: d7c68c3a76ef9a15be2f92d2f7d3c3db
+      size: 321442
+    - path: title_abstract_intro/train.csv
+      hash: md5
+      md5: e378cad85972d56979feec343fbd1a6c
+      size: 43389286
+  combine_title_abstract_intro@title_abstract_intro_validate:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Titel validate.csv \\\n\
+      \  --part Abstract abstract_intro/validate.csv abstract_intro/validate_sources.csv
+      \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --csv_output title_abstract_intro/validate.csv
+      \\\n  --index_output title_abstract_intro/validate.arrow\n"
+    deps:
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: abstract_intro/validate.csv
+      hash: md5
+      md5: 31df4895b5096159da6b0e464067a506
+      size: 3980615
+    - path: abstract_intro/validate_sources.csv
+      hash: md5
+      md5: 865bcf23ada5833308475b0d8fb75948
+      size: 22168
+    - path: validate.csv
+      hash: md5
+      md5: a1c6705d8c50e108848b39a8f7d0af6a
+      size: 236928
+    outs:
+    - path: title_abstract_intro/validate.arrow
+      hash: md5
+      md5: 3e7f75d412edfd330fe0b9ace5603b32
+      size: 28042
+    - path: title_abstract_intro/validate.csv
+      hash: md5
+      md5: cd337b633a6a0d55087fad8d50df5afd
+      size: 4090904
+  combine_title_abstract_intro@title_abstract_intro_test:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Titel test.csv \\\n  --part
+      Abstract abstract_intro/test.csv abstract_intro/test_sources.csv \\\n  --index_file
+      ../../corpora/title/test.arrow \\\n  --csv_output title_abstract_intro/test.csv
+      \\\n  --index_output title_abstract_intro/test.arrow\n"
+    deps:
+    - path: ../../corpora/title/test.arrow
+      hash: md5
+      md5: 12895b886ef1dbf9609dd26a392a7c71
+      size: 53778
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: abstract_intro/test.csv
+      hash: md5
+      md5: 97e9398ea20e2b0c42b5116b11775121
+      size: 4550144
+    - path: abstract_intro/test_sources.csv
+      hash: md5
+      md5: d08e2773ffa26a53d89035ef8499cf89
+      size: 25157
+    - path: test.csv
+      hash: md5
+      md5: 968ec0b8c5d9f3517061be08f3e7f7c8
+      size: 258607
+    outs:
+    - path: title_abstract_intro/test.arrow
+      hash: md5
+      md5: 4d169899660374bdcc4c6514ad6cd626
+      size: 31698
+    - path: title_abstract_intro/test.csv
+      hash: md5
+      md5: 0bd6c5033f80eaaee61e9a55c3744836
+      size: 4671740

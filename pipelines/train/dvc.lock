@@ -58,19 +58,19 @@ stages:
       size: 9940159
   create_train_collection:
     cmd:
-    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/toc_strict/train.csv
-      \\\n  --collection_name toc_strict_train \\\n  --text_type title \\\n  --chunk_size
-      512 \\\n  --batch_size 8 \\\n  --embedding_model BAAI/bge-m3 \\\n  --manifest_out
-      create_train_collection_manifest.json\n"
+    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/title_abstract_intro/train.csv
+      \\\n  --collection_name title_abstract_intro_train \\\n  --text_type title \\\
+      \n  --chunk_size 512 \\\n  --batch_size 8 \\\n  --embedding_model BAAI/bge-m3
+      \\\n  --manifest_out create_train_collection_manifest.json\n"
     deps:
     - path: ../../src/create_train_collection.py
       hash: md5
       md5: 2b4f8253e725f3790f5fbdc13a4c8ea0
       size: 13848
-    - path: ../preprocess/toc_strict/train.csv
+    - path: ../preprocess/title_abstract_intro/train.csv
       hash: md5
-      md5: 44f8847b7837bc12755dd00568b49bcc
-      size: 28081976
+      md5: e378cad85972d56979feec343fbd1a6c
+      size: 43389286
     params:
       params.yaml:
         train.batch_size: 8
@@ -78,53 +78,53 @@ stages:
         train.text_type: title
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
-        retrieve.weaviate_collection_name: toc_strict_train
+        retrieve.weaviate_collection_name: title_abstract_intro_train
     outs:
     - path: create_train_collection_manifest.json
       hash: md5
-      md5: e293b4ab347cfe77c981a4ccd9357615
-      size: 273
+      md5: b36774d470b8ce7799929a5045636514
+      size: 283
   retrieve:
     cmd:
-    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/toc_strict/validate.csv
+    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/title_abstract_intro/validate.csv
       \\\n  --output_file retrieved_examples.csv \\\n  --n_examples 5 \\\n  --host
-      8090 \\\n  --collection_name toc_strict_train\n"
+      8090 \\\n  --collection_name title_abstract_intro_train\n"
     deps:
     - path: ../../src/retrieve.py
       hash: md5
       md5: b609a115e95ca92a4a99642530aa5c21
       size: 4416
-    - path: ../preprocess/toc_strict/validate.csv
+    - path: ../preprocess/title_abstract_intro/validate.csv
       hash: md5
-      md5: 321fdc4f78e6e4ceb54f1ff03d3866d5
-      size: 2815333
+      md5: cd337b633a6a0d55087fad8d50df5afd
+      size: 4090904
     - path: create_train_collection_manifest.json
       hash: md5
-      md5: e293b4ab347cfe77c981a4ccd9357615
-      size: 273
+      md5: b36774d470b8ce7799929a5045636514
+      size: 283
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
         retrieve.n_examples: 5
-        retrieve.weaviate_collection_name: toc_strict_train
+        retrieve.weaviate_collection_name: title_abstract_intro_train
     outs:
     - path: retrieved_examples.csv
       hash: md5
-      md5: 55d4e7f40708ce3d9c18ded748121cc5
-      size: 30992147
+      md5: 2635032c5f6fb869a6ce97096b8d8178
+      size: 44235497
   complete@mistral-7B-0p3:
     cmd:
     - mkdir -p predictions_model_wise/mistral-7B-0p3/
     - "python ../../src/completion.py \\\n  --hf_model_name mistralai/Mistral-7B-Instruct-v0.3
-      \\\n  --dataset_file ../preprocess/toc_strict/validate.csv \\\n  --completion_file
+      \\\n  --dataset_file ../preprocess/title_abstract_intro/validate.csv \\\n  --completion_file
       predictions_model_wise/mistral-7B-0p3/completions.csv \\\n  --prompt_specification
-      retrieved_examples.csv \\\n  --custom_instructions ../../instructions/instruction_toc.txt
+      retrieved_examples.csv \\\n  --custom_instructions ../../instructions/instruction_title_abstract_intro.txt
       \\\n  --params_file ../shared_params.yaml \n"
     deps:
-    - path: ../../instructions/instruction_toc.txt
+    - path: ../../instructions/instruction_title_abstract_intro.txt
       hash: md5
-      md5: 8be41b89bbdb1fde41d83a7760162752
-      size: 153
+      md5: e7f6c3d3f5a643a5a95742b6994b23ff
+      size: 194
     - path: ../../src/PromptBuilder.py
       hash: md5
       md5: 823512fd917ba3689d0f7b23e402e794
@@ -133,17 +133,18 @@ stages:
       hash: md5
       md5: 53ea6bcc0db20d006ce5a1d69055592a
       size: 13842
-    - path: ../preprocess/toc_strict/validate.csv
+    - path: ../preprocess/title_abstract_intro/validate.csv
       hash: md5
-      md5: 321fdc4f78e6e4ceb54f1ff03d3866d5
-      size: 2815333
+      md5: cd337b633a6a0d55087fad8d50df5afd
+      size: 4090904
     - path: retrieved_examples.csv
       hash: md5
-      md5: 55d4e7f40708ce3d9c18ded748121cc5
-      size: 30992147
+      md5: 2635032c5f6fb869a6ce97096b8d8178
+      size: 44235497
     params:
       ../shared_params.yaml:
-        completion.custom_instruction: instructions/instruction_toc.txt
+        completion.custom_instruction: 
+          instructions/instruction_title_abstract_intro.txt
         completion.vllm.samplingparams.max_chunks: 1
         completion.vllm.samplingparams.max_new_tokens: 256
         completion.vllm.samplingparams.max_total_tokens: 40000
@@ -156,8 +157,8 @@ stages:
     outs:
     - path: predictions_model_wise/mistral-7B-0p3/completions.csv
       hash: md5
-      md5: 75c66b8f7521a1a300d6dde609bb2482
-      size: 175962
+      md5: 02e5d226a079ecb4da29ff83ad48c537
+      size: 117626
   complete@llama-3B-instruct:
     cmd:
     - mkdir -p predictions_model_wise/llama-3B/
@@ -227,8 +228,8 @@ stages:
       size: 256
     - path: predictions_model_wise/mistral-7B-0p3/completions.csv
       hash: md5
-      md5: 75c66b8f7521a1a300d6dde609bb2482
-      size: 175962
+      md5: 02e5d226a079ecb4da29ff83ad48c537
+      size: 117626
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
@@ -239,16 +240,16 @@ stages:
     outs:
     - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
       hash: md5
-      md5: 011d018066af3e24ab9f244f71fd451f
-      size: 534271
+      md5: 449898ad82ec32d64eaa2fbc91667b33
+      size: 362459
     - path: predictions_model_wise/mistral-7B-0p3/mapping_stats.json
       hash: md5
-      md5: 160acc347e7b76c3a38935767b71b8f7
+      md5: 5f9f2abf1a9a6d03580af32b6159891a
       size: 54
     - path: predictions_model_wise/mistral-7B-0p3/removed_mapped_predictions.csv
       hash: md5
-      md5: f742ec0a63f68d35aa9014699f758898
-      size: 27627
+      md5: caa2b38e6819a436a88a9bc67814a8fe
+      size: 12192
   map@llama-3B-instruct:
     cmd:
     - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/llama-3B/completions.csv
@@ -410,9 +411,9 @@ stages:
   compute_metrics_modelwise@mistral-7B-0p3:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
-      \\\n  --index ../preprocess/toc_strict/validate.arrow \\\n  --ground-truth ../../corpora/ground-truth.arrow
-      \\\n  --res_dir predictions_model_wise/mistral-7B-0p3/ \\\n  --kind title \\\
-      \n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
+      \\\n  --index ../preprocess/title_abstract_intro/validate.arrow \\\n  --ground-truth
+      ../../corpora/ground-truth.arrow \\\n  --res_dir predictions_model_wise/mistral-7B-0p3/
+      \\\n  --kind title \\\n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
     deps:
     - path: ../../corpora/ground-truth.arrow
       hash: md5
@@ -422,22 +423,22 @@ stages:
       hash: md5
       md5: cb4ba710d8dd4ca699fd8abdd84c3558
       size: 4171
-    - path: ../preprocess/toc_strict/validate.arrow
+    - path: ../preprocess/title_abstract_intro/validate.arrow
       hash: md5
-      md5: 4d286263689d8e1aa2b6c3fcc1ff8609
-      size: 32610
+      md5: 3e7f75d412edfd330fe0b9ace5603b32
+      size: 28042
     - path: predictions_model_wise/mistral-7B-0p3/mapped_predictions.csv
       hash: md5
-      md5: 011d018066af3e24ab9f244f71fd451f
-      size: 534271
+      md5: 449898ad82ec32d64eaa2fbc91667b33
+      size: 362459
     params:
       params.yaml:
         predict.text_type: title
     outs:
     - path: predictions_model_wise/mistral-7B-0p3/scores_at_100_R.yaml
       hash: md5
-      md5: 0b30ba95d673c14e9d30ce52dcd666e4
-      size: 246
+      md5: 562e6285836c5c23d14bc587f760aec9
+      size: 245
   compute_metrics_modelwise@llama-3B-instruct:
     cmd:
     - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/llama-3B/mapped_predictions.csv
