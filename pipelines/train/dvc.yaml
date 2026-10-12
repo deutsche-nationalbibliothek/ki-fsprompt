@@ -33,7 +33,7 @@ stages:
 
   create_train_collection:
     desc: Create a collection for the potential prompt documents
-    frozen: true
+    frozen: false
     cmd:
       - >
         python ../../src/create_train_collection.py \
@@ -43,7 +43,8 @@ stages:
           --chunk_size ${train.chunk_size} \
           --batch_size ${train.batch_size} \
           --embedding_model ${embedding.model} \
-          --manifest_out ${retrieve.manifest_out}
+          --manifest_out ${retrieve.manifest_out} \
+          --overwrite
     deps:
       - ../../src/create_train_collection.py
       - ${train.text_data}

@@ -279,13 +279,13 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc_strict:
@@ -300,8 +300,8 @@ stages:
       size: 36514
     - path: toc_strict/test.csv
       hash: md5
-      md5: 1865a09dc1549bcb5b20e722a62cf3ab
-      size: 3244542
+      md5: 1d299e5041cc6ae232c9ddaabf8be9cb
+      size: 3238698
   preprocess_toc_strict@toc_strict_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
@@ -325,13 +325,13 @@ stages:
       size: 507410
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc_strict:
@@ -346,8 +346,8 @@ stages:
       size: 351138
     - path: toc_strict/train.csv
       hash: md5
-      md5: 44f8847b7837bc12755dd00568b49bcc
-      size: 28081976
+      md5: f151a94a832759f975a697cc2805befd
+      size: 28032066
   preprocess_toc_strict@toc_strict_validate:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
@@ -371,13 +371,13 @@ stages:
       size: 47954
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc_strict:
@@ -392,8 +392,8 @@ stages:
       size: 32610
     - path: toc_strict/validate.csv
       hash: md5
-      md5: 321fdc4f78e6e4ceb54f1ff03d3866d5
-      size: 2815333
+      md5: 7f99dd3529c2b389992e4be5f931e3fb
+      size: 2810044
   preprocess_abstract_intro@abstract_intro_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/Abstract_Extraction

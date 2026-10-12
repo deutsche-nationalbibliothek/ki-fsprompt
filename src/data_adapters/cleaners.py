@@ -52,6 +52,14 @@ TOC_STOPWORDS: frozenset[str] = frozenset({
     "discussion", "results", "methods", "materials and methods",
 })
 
+# Longest terms first so that "material und methoden" wins over "material".
+_STOPWORD = re.compile(
+    r"(?<!\w)(?:" + "|".join(map(re.escape, sorted(TOC_STOPWORDS, key=len, reverse=True))) + r")(?!\w)"
+)
+# Leftover numbering anywhere in a line: "1.1", "1.", "iv", "a." (after lowercasing).
+_NUMBER_TOKEN = re.compile(r"(?<!\w)(?:\d{1,3}(?:\.\d{1,3})*\.?|[ivxlc]+\.?|[a-h]\.?)(?!\w)")
+_SEPARATORS = re.compile(r"[\s.:,;&/–—-]+")
+
 
 def keep_text(text: str) -> str:
     return text
@@ -84,6 +92,18 @@ def _lookup_key(line: str) -> str:
     return re.sub(r"\s+", " ", key).strip()
 
 
+def _only_structural(key: str) -> bool:
+    """True if a lookup key consists only of stopwords, numbering and separators.
+
+    Catches what the exact lookup misses: merged headings ("einleitung 1.1 einführung"),
+    combinations ("fazit & ausblick") and leftover numbering ("anhang c", "a. einleitung").
+    """
+    if not _STOPWORD.search(key):
+        return False
+    rest = _NUMBER_TOKEN.sub("", _STOPWORD.sub("", key))
+    return not _SEPARATORS.sub("", rest)
+
+
 def clean_toc(text: str) -> str:
     """Remove TOC formatting: bullets, numbering, dot leaders and page numbers."""
     cleaned = []
@@ -107,7 +127,7 @@ def clean_toc_strict(text: str) -> str:
         if not line:
             continue
         key = _lookup_key(line)
-        if key in TOC_STOPWORDS or key in seen:
+        if key in TOC_STOPWORDS or _only_structural(key) or key in seen:
             continue
         seen.add(key)
         cleaned.append(line)

@@ -116,6 +116,72 @@ python src/preprocess_selektion.py \
   --index_output pipelines/preprocess/toc/test.arrow
 ```
 
+## Arbeitsschritte: einen Fall durch die Pipeline schicken
+
+Jeder Fall (TOC, TOC strict, Titel + Abstract, …) läuft nach demselben Ablauf.
+Die beiden Parameterdateien in Schritt 1 und 2 können in beliebiger Reihenfolge
+bearbeitet werden, müssen aber **beide** fertig sein, bevor `dvc repro` startet.
+
+**0. Vorverarbeitung** — nur wenn der Fall neu ist oder sich Cleaner/Adapter geändert haben:
+
+```bash
+cd pipelines/preprocess
+dvc repro -s <stage>@<fall>_train <stage>@<fall>_validate <stage>@<fall>_test
+```
+
+**1. `pipelines/train/params.yaml` — welche Daten:**
+
+```yaml
+train:
+  text_data: ../preprocess/<fall>/train.csv
+predict:
+  text_data: ../preprocess/<fall>/validate.csv
+  index: ../preprocess/<fall>/validate.arrow
+```
+
+**2. `pipelines/shared_params.yaml` — wie gerechnet wird:**
+
+```yaml
+retrieve:
+  weaviate_collection_name: <fall>_train
+completion:
+  custom_instruction: instructions/instruction_<fall>.txt
+```
+
+- Jeder Fall bekommt einen **eigenen Collection-Namen**. Wird er vergessen, bricht
+  `create_train_collection.py` ab, weil die Collection aus einer anderen CSV stammt.
+- `max_model_len` und `max_total_tokens` bleiben über alle Fälle gleich, sonst sind
+  die Ergebnisse nicht vergleichbar.
+
+**3. Train-Pipeline laufen lassen:**
+
+```bash
+cd pipelines/train
+dvc repro -s create_train_collection retrieve complete@mistral-7B-0p3 map@mistral-7B-0p3 compute_metrics_modelwise@mistral-7B-0p3
+```
+
+`-s` führt nur die genannten Stages aus, DVC ordnet sie selbst in die richtige
+Reihenfolge und überspringt unveränderte. `create_train_collection` ist nicht
+eingefroren und hat `--overwrite` im Befehl: Die Collection wird genau dann neu
+gebaut, wenn sich die Train-CSV (oder ein Parameter der Stage) geändert hat. Zu
+beachten: `dvc.lock` kennt nur den letzten Stand. Beim Zurückwechseln auf einen
+früheren Fall wird dessen Collection deshalb neu eingebettet (~12 min); wer das
+vermeiden will, lässt `create_train_collection` im Befehl weg.
+
+**4. Ergebnisse sichern:**
+
+```bash
+R=results/<fall>_validate
+mkdir -p $R/mistral-7B-0p3
+cp predictions_model_wise/mistral-7B-0p3/{mapped_predictions.csv,mapping_stats.json,scores_at_100_R.yaml} $R/mistral-7B-0p3/
+cp params.yaml ../shared_params.yaml $R/
+```
+
+`predictions_model_wise/` wird beim nächsten Fall überschrieben, deshalb landet jeder
+Lauf samt Parameter-Snapshot unter `results/`.
+
+**5. Committen:** beide Parameterdateien, beide `dvc.lock` und `results/<fall>_validate`.
+
 ## Stand der Daten (geprüft am 2026-10-11)
 
 - Quelle: `aen/txt-praktikum`, Ordner `datasets/Sections`, gepinnt auf
