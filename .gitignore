@@ -3,3 +3,9 @@
 .vscode/
 .dvc/**
 Cezars_Notitzen/
+
+# Pipeline-Outputs pro Modell: werden von DVC verwaltet, nicht von Git
+# (gesicherte Kopien in pipelines/train/results/ bleiben bewusst in Git)
+pipelines/train/predictions_model_wise/*/completions.csv
+pipelines/train/predictions_model_wise/*/mapped_predictions.csv
+pipelines/train/predictions_model_wise/*/removed_mapped_predictions.csv
