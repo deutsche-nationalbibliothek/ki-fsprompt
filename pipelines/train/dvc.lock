@@ -58,19 +58,19 @@ stages:
       size: 9940159
   create_train_collection:
     cmd:
-    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/train.csv
-      \\\n  --collection_name title \\\n  --text_type title \\\n  --chunk_size 512
-      \\\n  --batch_size 8 \\\n  --embedding_model BAAI/bge-m3 \\\n  --manifest_out
+    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/toc_strict/train.csv
+      \\\n  --collection_name toc_strict_train \\\n  --text_type title \\\n  --chunk_size
+      512 \\\n  --batch_size 8 \\\n  --embedding_model BAAI/bge-m3 \\\n  --manifest_out
       create_train_collection_manifest.json \\\n  --overwrite\n"
     deps:
     - path: ../../src/create_train_collection.py
       hash: md5
       md5: 2b4f8253e725f3790f5fbdc13a4c8ea0
       size: 13848
-    - path: ../preprocess/train.csv
+    - path: ../preprocess/toc_strict/train.csv
       hash: md5
-      md5: 38bf27a271bf53faf79203f9a1c4cf5b
-      size: 2728392
+      md5: f151a94a832759f975a697cc2805befd
+      size: 28032066
     params:
       params.yaml:
         train.batch_size: 8
@@ -78,40 +78,40 @@ stages:
         train.text_type: title
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
-        retrieve.weaviate_collection_name: title
+        retrieve.weaviate_collection_name: toc_strict_train
     outs:
     - path: create_train_collection_manifest.json
       hash: md5
-      md5: 8836a3c118a6d73ea08b85c37ba097d0
-      size: 262
+      md5: 1d959b0b820ab38d0df5a7eb4827ae82
+      size: 273
   retrieve:
     cmd:
-    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/validate.csv
+    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/toc_strict/validate.csv
       \\\n  --output_file retrieved_examples.csv \\\n  --n_examples 5 \\\n  --host
-      8090 \\\n  --collection_name title\n"
+      8090 \\\n  --collection_name toc_strict_train\n"
     deps:
     - path: ../../src/retrieve.py
       hash: md5
       md5: b609a115e95ca92a4a99642530aa5c21
       size: 4416
-    - path: ../preprocess/validate.csv
+    - path: ../preprocess/toc_strict/validate.csv
       hash: md5
-      md5: a1c6705d8c50e108848b39a8f7d0af6a
-      size: 236928
+      md5: 7f99dd3529c2b389992e4be5f931e3fb
+      size: 2810044
     - path: create_train_collection_manifest.json
       hash: md5
-      md5: 8836a3c118a6d73ea08b85c37ba097d0
-      size: 262
+      md5: 1d959b0b820ab38d0df5a7eb4827ae82
+      size: 273
     params:
       ../shared_params.yaml:
         embedding.model: BAAI/bge-m3
         retrieve.n_examples: 5
-        retrieve.weaviate_collection_name: title
+        retrieve.weaviate_collection_name: toc_strict_train
     outs:
     - path: retrieved_examples.csv
       hash: md5
-      md5: 05c2972bc189e0f4113427ecbc6af600
-      size: 2484721
+      md5: 7ed6f88e32cf3aa3a8ba19104e54f165
+      size: 30871837
   complete@mistral-7B-0p3:
     cmd:
     - mkdir -p predictions_model_wise/mistral-7B-0p3/
@@ -469,3 +469,238 @@ stages:
       hash: md5
       md5: de812603741ce5e1ea29714e261404a1
       size: 236
+  complete@qwen-3p8-27B-fp8:
+    cmd:
+    - mkdir -p predictions_model_wise/qwen-3p8-27B/
+    - "python ../../src/completion.py \\\n  --hf_model_name Qwen/Qwen3.8-27B-FP8 \\\
+      \n  --dataset_file ../preprocess/title_abstract_intro/validate.csv \\\n  --completion_file
+      predictions_model_wise/qwen-3p8-27B/completions.csv \\\n  --prompt_specification
+      retrieved_examples.csv \\\n  --custom_instructions ../../instructions/instruction_title_abstract_intro.txt
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../instructions/instruction_title_abstract_intro.txt
+      hash: md5
+      md5: e7f6c3d3f5a643a5a95742b6994b23ff
+      size: 194
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: 823512fd917ba3689d0f7b23e402e794
+      size: 3022
+    - path: ../../src/completion.py
+      hash: md5
+      md5: aeafd05d552f2f9ea889aa98c4cb7023
+      size: 13973
+    - path: ../preprocess/title_abstract_intro/validate.csv
+      hash: md5
+      md5: cd337b633a6a0d55087fad8d50df5afd
+      size: 4090904
+    - path: retrieved_examples.csv
+      hash: md5
+      md5: 54961e16650c20f7e1c9f5d6c4ff0a3c
+      size: 44228761
+    params:
+      ../shared_params.yaml:
+        completion.custom_instruction: 
+          instructions/instruction_title_abstract_intro.txt
+        completion.vllm.samplingparams.max_chunks: 1
+        completion.vllm.samplingparams.max_new_tokens: 256
+        completion.vllm.samplingparams.max_total_tokens: 40000
+        completion.vllm.samplingparams.min_new_tokens: 0
+        completion.vllm.samplingparams.temperature: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: predictions_model_wise/qwen-3p8-27B/completions.csv
+      hash: md5
+      md5: bd5b492ce6fade0eaeb3b3feab440443
+      size: 106811
+  map@qwen-3p8-27B-fp8:
+    cmd:
+    - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/qwen-3p8-27B/completions.csv
+      \\\n  --output_file predictions_model_wise/qwen-3p8-27B/mapped_predictions.csv
+      \\\n  --mapping_stats predictions_model_wise/qwen-3p8-27B/mapping_stats.json
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../src/mapping.py
+      hash: md5
+      md5: 4e975bad3a8eceb77dba981dd75c35d8
+      size: 12088
+    - path: ../../vocab/create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+    - path: predictions_model_wise/qwen-3p8-27B/completions.csv
+      hash: md5
+      md5: bd5b492ce6fade0eaeb3b3feab440443
+      size: 106811
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        mapping.hyperparameters.alpha: 0.7
+        mapping.hyperparameters.min_cosine_similarity: 0.7
+        mapping.hyperparameters.search: hybrid
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: predictions_model_wise/qwen-3p8-27B/mapped_predictions.csv
+      hash: md5
+      md5: abd464b788148231d346bf81b9b49055
+      size: 332332
+    - path: predictions_model_wise/qwen-3p8-27B/mapping_stats.json
+      hash: md5
+      md5: 5322062d4c18d36b639ca7245e147dda
+      size: 53
+    - path: predictions_model_wise/qwen-3p8-27B/removed_mapped_predictions.csv
+      hash: md5
+      md5: 4dc94d0109fd25874e4589f20949b1c7
+      size: 5027
+  compute_metrics_modelwise@qwen-3p8-27B-fp8:
+    cmd:
+    - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/qwen-3p8-27B/mapped_predictions.csv
+      \\\n  --index ../preprocess/title_abstract_intro/validate.arrow \\\n  --ground-truth
+      ../../corpora/ground-truth.arrow \\\n  --res_dir predictions_model_wise/qwen-3p8-27B/
+      \\\n  --kind title \\\n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../src/compute_metrics.R
+      hash: md5
+      md5: cb4ba710d8dd4ca699fd8abdd84c3558
+      size: 4171
+    - path: ../preprocess/title_abstract_intro/validate.arrow
+      hash: md5
+      md5: 3e7f75d412edfd330fe0b9ace5603b32
+      size: 28042
+    - path: predictions_model_wise/qwen-3p8-27B/mapped_predictions.csv
+      hash: md5
+      md5: abd464b788148231d346bf81b9b49055
+      size: 332332
+    params:
+      params.yaml:
+        predict.text_type: title
+    outs:
+    - path: predictions_model_wise/qwen-3p8-27B/scores_at_100_R.yaml
+      hash: md5
+      md5: 7869861554c83b76c00dbdcea1e59d4c
+      size: 246
+  complete@gemma-4-31B-it:
+    cmd:
+    - mkdir -p predictions_model_wise/gemma-4-31B-fp8/
+    - "python ../../src/completion.py \\\n  --hf_model_name RedHatAI/gemma-4-31B-it-FP8-block
+      \\\n  --dataset_file ../preprocess/title_abstract_intro/validate.csv \\\n  --completion_file
+      predictions_model_wise/gemma-4-31B-fp8/completions.csv \\\n  --prompt_specification
+      retrieved_examples.csv \\\n  --custom_instructions ../../instructions/instruction_title_abstract_intro.txt
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../instructions/instruction_title_abstract_intro.txt
+      hash: md5
+      md5: e7f6c3d3f5a643a5a95742b6994b23ff
+      size: 194
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: 823512fd917ba3689d0f7b23e402e794
+      size: 3022
+    - path: ../../src/completion.py
+      hash: md5
+      md5: aeafd05d552f2f9ea889aa98c4cb7023
+      size: 13973
+    - path: ../preprocess/title_abstract_intro/validate.csv
+      hash: md5
+      md5: cd337b633a6a0d55087fad8d50df5afd
+      size: 4090904
+    - path: retrieved_examples.csv
+      hash: md5
+      md5: 54961e16650c20f7e1c9f5d6c4ff0a3c
+      size: 44228761
+    params:
+      ../shared_params.yaml:
+        completion.custom_instruction: 
+          instructions/instruction_title_abstract_intro.txt
+        completion.vllm.samplingparams.max_chunks: 1
+        completion.vllm.samplingparams.max_new_tokens: 256
+        completion.vllm.samplingparams.max_total_tokens: 40000
+        completion.vllm.samplingparams.min_new_tokens: 0
+        completion.vllm.samplingparams.temperature: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: predictions_model_wise/gemma-4-31B-fp8/completions.csv
+      hash: md5
+      md5: 20a04de6c757e64d734499b3d9a51c7b
+      size: 121434
+  map@gemma-4-31B-it:
+    cmd:
+    - "python ../../src/mapping.py \\\n  --completion_file predictions_model_wise/gemma-4-31B-fp8/completions.csv
+      \\\n  --output_file predictions_model_wise/gemma-4-31B-fp8/mapped_predictions.csv
+      \\\n  --mapping_stats predictions_model_wise/gemma-4-31B-fp8/mapping_stats.json
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../src/mapping.py
+      hash: md5
+      md5: 4e975bad3a8eceb77dba981dd75c35d8
+      size: 12088
+    - path: ../../vocab/create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+    - path: predictions_model_wise/gemma-4-31B-fp8/completions.csv
+      hash: md5
+      md5: 20a04de6c757e64d734499b3d9a51c7b
+      size: 121434
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        mapping.hyperparameters.alpha: 0.7
+        mapping.hyperparameters.min_cosine_similarity: 0.7
+        mapping.hyperparameters.search: hybrid
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: predictions_model_wise/gemma-4-31B-fp8/mapped_predictions.csv
+      hash: md5
+      md5: 42561a0cb94178002801709ed7489bf6
+      size: 381032
+    - path: predictions_model_wise/gemma-4-31B-fp8/mapping_stats.json
+      hash: md5
+      md5: 2857a6e0122964333d7d2f67f4bdeac6
+      size: 54
+    - path: 
+        predictions_model_wise/gemma-4-31B-fp8/removed_mapped_predictions.csv
+      hash: md5
+      md5: 9331c7b3a5455254474a4a9454677211
+      size: 11827
+  compute_metrics_modelwise@gemma-4-31B-it:
+    cmd:
+    - "Rscript ../../src/compute_metrics.R \\\n  --predictions predictions_model_wise/gemma-4-31B-fp8/mapped_predictions.csv
+      \\\n  --index ../preprocess/title_abstract_intro/validate.arrow \\\n  --ground-truth
+      ../../corpora/ground-truth.arrow \\\n  --res_dir predictions_model_wise/gemma-4-31B-fp8/
+      \\\n  --kind title \\\n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../src/compute_metrics.R
+      hash: md5
+      md5: cb4ba710d8dd4ca699fd8abdd84c3558
+      size: 4171
+    - path: ../preprocess/title_abstract_intro/validate.arrow
+      hash: md5
+      md5: 3e7f75d412edfd330fe0b9ace5603b32
+      size: 28042
+    - path: predictions_model_wise/gemma-4-31B-fp8/mapped_predictions.csv
+      hash: md5
+      md5: 42561a0cb94178002801709ed7489bf6
+      size: 381032
+    params:
+      params.yaml:
+        predict.text_type: title
+    outs:
+    - path: predictions_model_wise/gemma-4-31B-fp8/scores_at_100_R.yaml
+      hash: md5
+      md5: 7c22a598f460afd27aba41506970a9e8
+      size: 245

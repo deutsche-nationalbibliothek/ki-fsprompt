@@ -112,7 +112,9 @@ class LLMCompletion:
                 in [
                     "meta-llama/Meta-Llama-3.1-70B-Instruct",
                     "mistralai/Mixtral-8x7B-Instruct-v0.1",
-                    "mistralai/Mistral-7B-Instruct-v0.3"
+                    "mistralai/Mistral-7B-Instruct-v0.3",
+                    "Qwen/Qwen3.8-27B-FP8", #diese zwei sind zum Testen
+                    "RedHatAI/gemma-4-31B-it-FP8-block" ,
                 ]
                 else None
             ),
