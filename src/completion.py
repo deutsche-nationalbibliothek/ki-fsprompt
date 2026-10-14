@@ -8,6 +8,9 @@ import datetime
 import logging
 import os
 import re
+import time
+import atexit
+import subprocess
 import pandas as pd
 import logging
 import datetime
@@ -145,7 +148,17 @@ class LLMCompletion:
             structured_outputs=StructuredOutputsParams(json=keyword_schema),
         )
 
+        # Resource accounting: model loading is timed separately from generation,
+        # because it depends on the local HF cache rather than on the model itself.
+        self.completion_file = completion_file
+        self.generate_windows = []
+        self.start_gpu_logger()
+        load_start = time.perf_counter()
         self.llm = LLM.from_engine_args(self.vllm_engineargs)
+        self.load_seconds = time.perf_counter() - load_start
+        self.generate_seconds = 0.0
+        self.prompt_tokens = 0
+        self.output_tokens = 0
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.hf_model_name, trust_remote_code=True
         )
@@ -264,7 +277,13 @@ class LLMCompletion:
             prompts.append(prompt)
             doc_ids.append(row.doc_id)
 
+        generate_start = time.perf_counter()
+        window_start = datetime.datetime.now()
         responses = self.llm.generate(prompts, self.vllm_samplingparams, use_tqdm = True)
+        self.generate_windows.append((window_start, datetime.datetime.now()))
+        self.generate_seconds += time.perf_counter() - generate_start
+        self.prompt_tokens += sum(len(r.prompt_token_ids) for r in responses)
+        self.output_tokens += sum(len(r.outputs[0].token_ids) for r in responses)
         candidate_lists = []
         for i, response in enumerate(responses):
             result = self.post_process_results(response, prompts[i], doc_ids[i])
@@ -310,6 +329,9 @@ class LLMCompletion:
         logging.info(
             "End complete computation at time {}".format(str(datetime.datetime.now()))
         )
+        self.stop_gpu_logger()
+        if not self.debug:
+            self.write_resource_stats(n_docs=df_documents.shape[0])
         destroy_model_parallel()
         del self.llm
         gc.collect()
@@ -321,6 +343,104 @@ class LLMCompletion:
         logging.info(
             "Done with prediction! Find the results at {}".format(self.completion_file)
         )
+
+    def start_gpu_logger(self):
+        """Samples the GPU once per second with nvidia-smi into gpu_log.csv next to the completion file.
+
+        Note: nvidia-smi reports the whole device, so on a shared GPU the values include
+        other users' processes.
+        """
+        self.gpu_device = (os.environ.get("CUDA_VISIBLE_DEVICES") or "0").split(",")[0]
+        self.gpu_log_file = os.path.join(os.path.dirname(self.completion_file) or ".", "gpu_log.csv")
+        self.gpu_logger = None
+        try:
+            self.gpu_log_handle = open(self.gpu_log_file, "w")
+            self.gpu_log_handle.write("timestamp,utilization_gpu_pct,memory_used_mib,power_draw_w\n")
+            self.gpu_log_handle.flush()
+            self.gpu_logger = subprocess.Popen(
+                [
+                    "nvidia-smi", "-i", self.gpu_device,
+                    "--query-gpu=timestamp,utilization.gpu,memory.used,power.draw",
+                    "--format=csv,noheader,nounits", "-l", "1",
+                ],
+                stdout=self.gpu_log_handle,
+                stderr=subprocess.DEVNULL,
+            )
+            # make sure the logger does not outlive a crashed run
+            atexit.register(self.stop_gpu_logger)
+        except FileNotFoundError:
+            logging.warning("nvidia-smi not found, no GPU log is written")
+
+    def stop_gpu_logger(self):
+        if self.gpu_logger is not None and self.gpu_logger.poll() is None:
+            self.gpu_logger.terminate()
+            self.gpu_logger.wait()
+        if getattr(self, "gpu_log_handle", None) is not None and not self.gpu_log_handle.closed:
+            self.gpu_log_handle.close()
+
+    def summarize_gpu_log(self):
+        """Energy (Wh), mean power and utilization from gpu_log.csv, overall and during generation."""
+        try:
+            log = pd.read_csv(self.gpu_log_file, skipinitialspace=True)
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            return {}
+        if log.empty:
+            return {}
+        log["timestamp"] = pd.to_datetime(log["timestamp"], format="%Y/%m/%d %H:%M:%S.%f", errors="coerce")
+        for column in ["utilization_gpu_pct", "memory_used_mib", "power_draw_w"]:
+            log[column] = pd.to_numeric(log[column], errors="coerce")
+        log = log.dropna(subset=["timestamp"])
+        # seconds until the next sample (last sample counts as 1 s)
+        log["dt"] = log["timestamp"].diff().shift(-1).dt.total_seconds().fillna(1.0)
+
+        in_generate = pd.Series(False, index=log.index)
+        for start, end in self.generate_windows:
+            in_generate |= (log["timestamp"] >= start) & (log["timestamp"] <= end)
+        generate = log[in_generate]
+
+        def energy_wh(frame):
+            return round(float((frame["power_draw_w"] * frame["dt"]).sum()) / 3600, 2)
+
+        return {
+            "energy_wh_total": energy_wh(log),
+            "energy_wh_generate": energy_wh(generate),
+            "mean_power_w_generate": round(float(generate["power_draw_w"].mean()), 1) if not generate.empty else None,
+            "mean_gpu_util_pct_generate": round(float(generate["utilization_gpu_pct"].mean()), 1) if not generate.empty else None,
+            "max_memory_used_mib": int(log["memory_used_mib"].max()),
+            "gpu_log_samples": int(len(log)),
+        }
+
+    def write_resource_stats(self, n_docs):
+        """Writes runtime, token counts and GPU energy next to the completion file (resource_stats.json).
+
+        GPU memory is taken from nvidia-smi, not from torch: vLLM pre-allocates according to
+        gpu_memory_utilization, so torch's allocator statistics say nothing about the model.
+        """
+        stats = {
+            "hf_model_name": self.hf_model_name,
+            "n_docs": int(n_docs),
+            "load_seconds": round(self.load_seconds, 1),
+            "generate_seconds": round(self.generate_seconds, 1),
+            "seconds_per_doc": round(self.generate_seconds / n_docs, 3) if n_docs else None,
+            "prompt_tokens": self.prompt_tokens,
+            "output_tokens": self.output_tokens,
+            "prompt_tokens_per_doc": round(self.prompt_tokens / n_docs, 1) if n_docs else None,
+            "output_tokens_per_doc": round(self.output_tokens / n_docs, 1) if n_docs else None,
+            "tokens_per_second": (
+                round((self.prompt_tokens + self.output_tokens) / self.generate_seconds, 1)
+                if self.generate_seconds else None
+            ),
+            **self.summarize_gpu_log(),
+            "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
+            "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
+            "gpu_memory_utilization": self.vllm_engineargs.gpu_memory_utilization,
+            "enforce_eager": self.vllm_engineargs.enforce_eager,
+            "finished_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        }
+        stats_file = os.path.join(os.path.dirname(self.completion_file), "resource_stats.json")
+        with open(stats_file, "w") as f:
+            json.dump(stats, f, indent=2)
+        logging.info("Resource stats written to {}".format(stats_file))
 
 
 def execute():

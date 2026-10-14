@@ -115,6 +115,10 @@ stages:
       - ../../${completion.custom_instruction}
       outs:
       - predictions_model_wise/${item.short_name}/${completion.completion_filename}
+      - predictions_model_wise/${item.short_name}/gpu_log.csv
+      metrics:
+      - predictions_model_wise/${item.short_name}/resource_stats.json:
+          cache: false
 
   map:
     foreach: ${completion.models}
