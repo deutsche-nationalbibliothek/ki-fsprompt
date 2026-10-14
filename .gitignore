@@ -9,3 +9,7 @@ Cezars_Notitzen/
 pipelines/train/predictions_model_wise/*/completions.csv
 pipelines/train/predictions_model_wise/*/mapped_predictions.csv
 pipelines/train/predictions_model_wise/*/removed_mapped_predictions.csv
+
+
+
+ki-fsprompt-agentic.ipynb
