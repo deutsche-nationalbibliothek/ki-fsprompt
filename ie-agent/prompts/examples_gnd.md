@@ -1,0 +1,1 @@
+Zu den Schlagwörtern der Beispiele stehen in Klammern die Sachgruppe und die Oberbegriffe (OB) aus der GND. Sie zeigen, wie spezifisch die Beispiele erschlossen sind und wie mehrere Schlagwörter zusammen ein Thema abdecken.

@@ -1,0 +1,39 @@
+{
+  "built": "2026-10-30T00:03:30",
+  "sources": [
+    {
+      "url": "https://data.dnb.de/opendata/authorities-gnd-sachbegriff_lds.ttl.gz",
+      "file": "authorities-gnd-sachbegriff_lds.ttl.gz",
+      "bytes": 24119388,
+      "sha256": "fa220da1be0f05824348e6a237bd1f38307d8738e9ec02b31ff2c67527f36e53",
+      "last_modified": "Mon, 02 Mar 2026 13:19:09 GMT",
+      "downloaded": "2026-10-30T00:02:56"
+    },
+    {
+      "url": "https://data.dnb.de/opendata/authorities-gnd-geografikum_lds.ttl.gz",
+      "file": "authorities-gnd-geografikum_lds.ttl.gz",
+      "bytes": 44347076,
+      "sha256": "f0db9b1da48835beb7914d53b7db90c5fc76beca13ed79add629832ad5722de1",
+      "last_modified": "Mon, 02 Mar 2026 13:20:00 GMT",
+      "downloaded": "2026-10-30T00:02:57"
+    },
+    {
+      "url": "https://d-nb.info/standards/vocab/gnd/gnd-sc.ttl",
+      "file": "gnd-sc.ttl",
+      "bytes": 137454,
+      "sha256": "885739da9b0d5a43fe4758495c1760e941124ac89157f728a1ce830ae58b48c5",
+      "last_modified": null,
+      "downloaded": "2026-10-30T00:02:57"
+    },
+    {
+      "file": "/home/harbc/ki-fsprompt/vocab/GND-Subjects-plus.ttl",
+      "bytes": 70495107,
+      "note": "GND vocabulary of the pipeline (DVC)"
+    }
+  ],
+  "concepts": 309417,
+  "with_details": 197252,
+  "with_definition": 47127,
+  "with_description": 14449,
+  "with_using_instructions": 10951
+}

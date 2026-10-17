@@ -1,0 +1,8 @@
+.venv/
+runs/
+results/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+gnd_graph/*
+!gnd_graph/manifest.json

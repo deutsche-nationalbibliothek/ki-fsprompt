@@ -1,0 +1,76 @@
+# All settings in one place. Single values can be overridden on the command line (ie-agent --help).
+
+llm:
+  model: qwen             # one of models: below (--model), or a model name the server knows
+  reasoning: false        # reasoning of the model (enable_thinking in the chat template), --reasoning
+  max_tokens: 2048        # output tokens per step
+  max_tokens_reasoning: 8192   # used instead when reasoning is on (reasoning needs more room)
+
+agent:
+  kag: true               # gnd_context: check candidates in the GND graph (KAG)
+  toc: true               # read_toc: the table of contents is available (--no-toc)
+  examples_gnd: false     # variant A: annotate example subject headings with subject category and broader terms
+  examples_with_sections: false   # true: read_abstract_intro / read_toc always return the 5 examples of their section
+                                  # (as in the pipeline conditions); get_examples is then not offered
+  max_steps: 14
+  max_rejections: 2       # how often finish() with unknown IDs is sent back
+  max_chars_example: 400
+  max_chars_toc: 12000
+  max_context_ids: 8      # GND IDs per gnd_context call
+  max_narrower: 8
+
+mapping:                  # as in pipelines/shared_params.yaml (mapping)
+  weaviate_port: 8087
+  tei_port: 8090
+  collection: ki_fsprompt_vocab
+  alpha: 0.7
+  min_cosine: 0.7
+
+paths:                    # relative to root
+  root: /home/harbc/ki-fsprompt
+  title_index: corpora/title/validate.arrow
+  title_tsv: corpora/title/validate.tsv.gz
+  sections: pipelines/preprocess/preprocessed/Sections
+  results: pipelines/train/results
+  ground_truth: corpora/ground-truth.arrow
+  train_index: corpora/title/train.arrow
+  gnd_ttl: vocab/GND-Subjects-plus.ttl
+
+gnd:                      # GND knowledge for gnd_context, downloaded and built inside this project: ie-agent build-gnd
+  folder: gnd_graph       # relative to the ie-agent folder
+  dump_urls:              # DNB open data (CC0): subject headings and geographic names
+    - https://data.dnb.de/opendata/authorities-gnd-sachbegriff_lds.ttl.gz
+    - https://data.dnb.de/opendata/authorities-gnd-geografikum_lds.ttl.gz
+  classification_url: https://d-nb.info/standards/vocab/gnd/gnd-sc.ttl          # GND subject categories
+
+models:                   # --model <name>; with --gpu N ie-agent starts this model itself and stops it at the end
+  qwen:
+    name: Qwen/Qwen3.8-27B-FP8
+    port: 9514
+    args: --max-model-len 81920 --gpu-memory-utilization 0.85 --enable-auto-tool-choice
+          --tool-call-parser qwen3_coder --reasoning-parser qwen3
+  muse:                   # needs the patched muse_glimmer tool parser in the vLLM of the main project
+    name: RedHatAI/Muse-Glimmer-30B-FP8-block
+    port: 9513
+    args: --max-model-len 40000 --gpu-memory-utilization 0.85 --enable-auto-tool-choice
+          --tool-call-parser muse_glimmer --reasoning-parser muse_glimmer
+
+server:                   # how ie-agent starts vLLM with --gpu N
+  vllm: /home/harbc/ki-fsprompt/.venv/bin/vllm
+  log: results/vllm.log   # server output, overwritten at every start
+  timeout: 1800           # seconds to wait until the server answers (the first start may download the model)
+
+sweep:                    # ie-agent sweep: one run per combination of these values (2 x 2 x 2 = 8 runs)
+  reasoning: [false, true]
+  kag: [true, false]
+  examples_with_sections: [false, true]
+
+scoring:                  # scores.json after every run: casimir, as compute_metrics.R of KI-FS Prompt
+  rscript: /home/harbc/.conda/envs/r-eval/bin/Rscript
+  kind: title
+  n_threads: 20
+
+run:
+  output: results         # results/<model>/, relative to the ie-agent folder
+  parallel: 8
+  seed: 1233415

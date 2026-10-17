@@ -1,0 +1,16 @@
+# Parts of system.md that depend on the conditions (filled in by agent.py)
+examples_step:
+  optional: "Die Beispiele zum Titel hast du schon. Mit get_examples() kannst du Beispiele anfordern, die zu einem gelesenen Abschnitt passen."
+  forced: "Die Beispiele zum Titel hast du schon. Mit jedem gelesenen Abschnitt bekommst du automatisch 5 ähnliche, bereits erschlossene Dokumente zu diesem Abschnitt."
+check_step:
+  kag: "6. Prüfe die Abbildungen mit gnd_context() (siehe unten). Erst danach steht finish() zur Verfügung.\n"
+  no_kag: ""
+finish_number:
+  kag: 7
+  no_kag: 6
+id_sources:
+  kag: "map_to_gnd oder gnd_context"
+  no_kag: "map_to_gnd"
+toc_step:
+  toc: "Bilde deine Kandidaten aus Titel und Abstract mit map_to_gnd() ab. Fehlt danach noch etwas, lies mit read_toc() Aufbau und behandelte Aspekte. Das Inhaltsverzeichnis steht erst zur Verfügung, wenn du nach dem Abstract abgebildet hast. Lies nur so weit, wie du es brauchst."
+  no_toc: "Bilde deine Kandidaten aus Titel und Abstract mit map_to_gnd() ab. Lies nur so weit, wie du es brauchst."
