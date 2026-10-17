@@ -122,3 +122,85 @@ train_xgb:
     shrinkage: 0.02058179685107834
     subsample: 0.69631089647747
     verbose: true
+
+
+# Matrix aus Bedingungen × Modellen
+# Das ursprüngliche Setup (Projekt von Herrn Kähler) verglich verschiedene Modelle auf einem festen Datensatz (Titel).
+# in meinem Fall macht es sinn, den Setup zu updaten
+# indem man zusätzlich Textselektionen (Sections und Bedingungen) verglichen kann.
+# Jede Kombination aus runs (unten) ist eine eigene DVC-Stufe.
+conditions:
+  title: &title
+    name: title
+    train: ../preprocess/train.csv
+    validate: ../preprocess/validate.csv
+    validate_index: ../../corpora/title/validate.arrow
+    collection: title
+    instruction: instructions/instruction_title.txt
+  abstract_intro: &abstract_intro
+    name: abstract_intro
+    train: ../preprocess/preprocessed/Sections/abstract_intro/train.csv
+    validate: ../preprocess/preprocessed/Sections/abstract_intro/validate.csv
+    validate_index: ../preprocess/preprocessed/Sections/abstract_intro/validate.arrow
+    collection: abstract_intro_train
+    instruction: instructions/instruction_abstract_intro.txt
+  toc_strict: &toc_strict
+    name: toc_strict
+    train: ../preprocess/preprocessed/Sections/toc_strict/train.csv
+    validate: ../preprocess/preprocessed/Sections/toc_strict/validate.csv
+    validate_index: ../preprocess/preprocessed/Sections/toc_strict/validate.arrow
+    collection: toc_strict_train
+    instruction: instructions/instruction_toc.txt
+  title_abstract_intro: &title_abstract_intro          # Bedingung C
+    name: title_abstract_intro
+    train: ../preprocess/preprocessed/bedingungen/title_abstract_intro/train.csv
+    validate: ../preprocess/preprocessed/bedingungen/title_abstract_intro/validate.csv
+    validate_index: ../preprocess/preprocessed/bedingungen/title_abstract_intro/validate.arrow
+    collection: title_abstract_intro_train
+    instruction: instructions/instruction_title_abstract_intro.txt
+  abstract_intro_toc: &abstract_intro_toc          # Bedingung D
+    name: abstract_intro_toc
+    train: ../preprocess/preprocessed/bedingungen/abstract_intro_toc/train.csv
+    validate: ../preprocess/preprocessed/bedingungen/abstract_intro_toc/validate.csv
+    validate_index: ../preprocess/preprocessed/bedingungen/abstract_intro_toc/validate.arrow
+    collection: abstract_intro_toc_train
+    instruction: instructions/instruction_abstract_intro_toc.txt
+
+# nur die Modelle, die in den Bedingungsvergleich gehen
+study_models:
+  mistral-7B-0p3: &mistral
+    hf_model_name: mistralai/Mistral-7B-Instruct-v0.3
+    short_name: mistral-7B-0p3
+  qwen-3p8-27B: &qwen
+    hf_model_name: Qwen/Qwen3.8-27B-FP8
+    short_name: qwen-3p8-27B
+  gemma-4-31B-fp8: &gemma
+    hf_model_name: RedHatAI/gemma-4-31B-it-FP8-block
+    short_name: gemma-4-31B-fp8
+
+# Welche Kombinationen aus Bedingung × Modell laufen sollen.
+# Schlüssel = Stufenname, z. B. complete@toc_strict-qwen-3p8-27B.
+# Eine Kombination auskommentieren = sie wird keine DVC-Stufe.
+
+# Warum & und *: YAML-Anker. &name (oben bei conditions / study_models) gibt einem Block einen Namen,
+# *name setzt hier eine Kopie dieses Blocks ein. So steht jede Bedingung und jedes Modell nur einmal
+# in der Datei, und eine Änderung (z. B. Pfad oder Instruktion) gilt automatisch für alle Kombinationen.
+# Nötig ist das, weil DVCs matrix bei einem Dict nur den Schlüssel liefert, nicht die Felder
+# (${item.cond.train} geht dort nicht). Daher foreach über runs, wo jeder Eintrag beide Blöcke enthält.
+# Achtung: dvc exp run -S schreibt die Datei neu und kann die Anker entfernen.
+runs:
+  title-mistral-7B-0p3:                  {cond: *title,                 model: *mistral}
+  title-qwen-3p8-27B:                    {cond: *title,                 model: *qwen}
+  title-gemma-4-31B-fp8:                 {cond: *title,                 model: *gemma}
+  abstract_intro-mistral-7B-0p3:         {cond: *abstract_intro,        model: *mistral}
+  abstract_intro-qwen-3p8-27B:           {cond: *abstract_intro,        model: *qwen}
+  abstract_intro-gemma-4-31B-fp8:        {cond: *abstract_intro,        model: *gemma}
+  toc_strict-mistral-7B-0p3:             {cond: *toc_strict,            model: *mistral}
+  toc_strict-qwen-3p8-27B:               {cond: *toc_strict,            model: *qwen}
+  toc_strict-gemma-4-31B-fp8:            {cond: *toc_strict,            model: *gemma}
+  title_abstract_intro-mistral-7B-0p3:   {cond: *title_abstract_intro,  model: *mistral}
+  title_abstract_intro-qwen-3p8-27B:     {cond: *title_abstract_intro,  model: *qwen}
+  title_abstract_intro-gemma-4-31B-fp8:  {cond: *title_abstract_intro,  model: *gemma}
+  abstract_intro_toc-mistral-7B-0p3:     {cond: *abstract_intro_toc,    model: *mistral}
+  abstract_intro_toc-qwen-3p8-27B:       {cond: *abstract_intro_toc,    model: *qwen}
+  abstract_intro_toc-gemma-4-31B-fp8:    {cond: *abstract_intro_toc,    model: *gemma}

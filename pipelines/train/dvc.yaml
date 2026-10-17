@@ -31,73 +31,79 @@ stages:
       - ../../${vocab.manifest_out}:
           cache: false
 
+  # Bedingungen × Modelle, siehe conditions / study_models / runs in shared_params.yaml.
+  # Ergebnisse landen in results/<bedingung>_validate/<modell>/.
+  # Collection und Retrieval hängen nur von der Bedingung ab (foreach über conditions),
+  # complete, map und compute_metrics_modelwise von Bedingung und Modell (foreach über runs).
+
   create_train_collection:
-    desc: Create a collection for the potential prompt documents
-    frozen: false
-    cmd:
-      - >
-        python ../../src/create_train_collection.py \
-          --text_data ${train.text_data} \
-          --collection_name ${retrieve.weaviate_collection_name} \
-          --text_type ${train.text_type} \
-          --chunk_size ${train.chunk_size} \
-          --batch_size ${train.batch_size} \
-          --embedding_model ${embedding.model} \
-          --manifest_out ${retrieve.manifest_out} \
-          --overwrite
-    deps:
-      - ../../src/create_train_collection.py
-      - ${train.text_data}
-    params:
-      - train.text_type
-      - train.chunk_size
-      - train.batch_size
-      - ../shared_params.yaml:
-        - embedding.model
-        - retrieve.weaviate_collection_name
-    outs:
-      - ${retrieve.manifest_out}:
-          cache: false
+    foreach: ${conditions}
+    do:
+      desc: Create a collection for the potential prompt documents of one condition
+      frozen: false
+      cmd:
+        - >
+          python ../../src/create_train_collection.py \
+            --text_data ${item.train} \
+            --collection_name ${item.collection} \
+            --text_type ${train.text_type} \
+            --chunk_size ${train.chunk_size} \
+            --batch_size ${train.batch_size} \
+            --embedding_model ${embedding.model} \
+            --manifest_out results/${item.name}_validate/collection_manifest.json \
+            --overwrite
+      deps:
+        - ../../src/create_train_collection.py
+        - ${item.train}
+      params:
+        - train.text_type
+        - train.chunk_size
+        - train.batch_size
+        - ../shared_params.yaml:
+          - embedding.model
+      outs:
+        - results/${item.name}_validate/collection_manifest.json:
+            cache: false
 
   retrieve:
-    desc: Get the closest examples for each document in the validation set
-    cmd:
-      - >
-        python ../../src/retrieve.py \
-          --input_text_data ${predict.text_data} \
-          --output_file ${retrieve.prompt_file} \
-          --n_examples ${retrieve.n_examples} \
-          --host ${embedding.TEI_port} \
-          --collection_name ${retrieve.weaviate_collection_name}
-    deps:
-      - ../../src/retrieve.py
-      - ${predict.text_data}
-      - ${retrieve.manifest_out}
-    params:
-      - ../shared_params.yaml:
-        - retrieve.weaviate_collection_name
-        - retrieve.n_examples
-        - embedding.model
-    outs:
-      - ${retrieve.prompt_file}
+    foreach: ${conditions}
+    do:
+      desc: Get the closest examples for each validation document of one condition
+      cmd:
+        - >
+          python ../../src/retrieve.py \
+            --input_text_data ${item.validate} \
+            --output_file results/${item.name}_validate/retrieved_examples.csv \
+            --n_examples ${retrieve.n_examples} \
+            --host ${embedding.TEI_port} \
+            --collection_name ${item.collection}
+      deps:
+        - ../../src/retrieve.py
+        - ${item.validate}
+        - results/${item.name}_validate/collection_manifest.json
+      params:
+        - ../shared_params.yaml:
+          - retrieve.n_examples
+          - embedding.model
+      outs:
+        - results/${item.name}_validate/retrieved_examples.csv
 
   complete:
-    foreach: ${completion.models}
+    foreach: ${runs}
     do:
-      desc: Generate free keywords for a matrix of model x prompt combinations
+      desc: Generate free keywords for one condition x model combination
       cmd:
-      - mkdir -p predictions_model_wise/${item.short_name}/
+      - mkdir -p results/${item.cond.name}_validate/${item.model.short_name}/
       - >
         python ../../src/completion.py \
-          --hf_model_name ${item.hf_model_name} \
-          --dataset_file ${predict.text_data} \
-          --completion_file predictions_model_wise/${item.short_name}/${completion.completion_filename} \
-          --prompt_specification ${retrieve.prompt_file} \
-          --custom_instructions ../../${completion.custom_instruction} \
+          --hf_model_name ${item.model.hf_model_name} \
+          --dataset_file ${item.cond.validate} \
+          --completion_file results/${item.cond.name}_validate/${item.model.short_name}/${completion.completion_filename} \
+          --prompt_specification results/${item.cond.name}_validate/retrieved_examples.csv \
+          --custom_instructions ../../${item.cond.instruction} \
           --params_file ../shared_params.yaml 
       params:
         - ../shared_params.yaml:
-          - completion.custom_instruction
           - completion.vllm.samplingparams.max_new_tokens
           - completion.vllm.samplingparams.min_new_tokens
           - completion.vllm.samplingparams.max_total_tokens
@@ -110,26 +116,26 @@ stages:
       deps:
       - ../../src/completion.py
       - ../../src/PromptBuilder.py
-      - ${predict.text_data}
-      - ${retrieve.prompt_file}
-      - ../../${completion.custom_instruction}
+      - ${item.cond.validate}
+      - results/${item.cond.name}_validate/retrieved_examples.csv
+      - ../../${item.cond.instruction}
       outs:
-      - predictions_model_wise/${item.short_name}/${completion.completion_filename}
-      - predictions_model_wise/${item.short_name}/gpu_log.csv
+      - results/${item.cond.name}_validate/${item.model.short_name}/${completion.completion_filename}
+      - results/${item.cond.name}_validate/${item.model.short_name}/gpu_log.csv
       metrics:
-      - predictions_model_wise/${item.short_name}/resource_stats.json:
+      - results/${item.cond.name}_validate/${item.model.short_name}/resource_stats.json:
           cache: false
 
   map:
-    foreach: ${completion.models}
+    foreach: ${runs}
     do:
-      desc: Map keywords to GND subject terms for all models
+      desc: Map keywords to GND subject terms for one condition x model combination
       cmd:
       - > 
         python ../../src/mapping.py \
-          --completion_file predictions_model_wise/${item.short_name}/${completion.completion_filename} \
-          --output_file predictions_model_wise/${item.short_name}/${mapping.output_file} \
-          --mapping_stats predictions_model_wise/${item.short_name}/mapping_stats.json \
+          --completion_file results/${item.cond.name}_validate/${item.model.short_name}/${completion.completion_filename} \
+          --output_file results/${item.cond.name}_validate/${item.model.short_name}/${mapping.output_file} \
+          --mapping_stats results/${item.cond.name}_validate/${item.model.short_name}/mapping_stats.json \
           --params_file ../shared_params.yaml 
       params:
       - ../shared_params.yaml:
@@ -140,38 +146,38 @@ stages:
         - embedding.model
       deps:
       - ../../src/mapping.py
-      - predictions_model_wise/${item.short_name}/${completion.completion_filename}
+      - results/${item.cond.name}_validate/${item.model.short_name}/${completion.completion_filename}
       - ../../${vocab.manifest_out}
       outs:
-      - predictions_model_wise/${item.short_name}/${mapping.output_file}
-      - predictions_model_wise/${item.short_name}/removed_mapped_predictions.csv
+      - results/${item.cond.name}_validate/${item.model.short_name}/${mapping.output_file}
+      - results/${item.cond.name}_validate/${item.model.short_name}/removed_mapped_predictions.csv
       metrics:
-      - predictions_model_wise/${item.short_name}/mapping_stats.json:
+      - results/${item.cond.name}_validate/${item.model.short_name}/mapping_stats.json:
           cache: false
 
   compute_metrics_modelwise:
-    foreach: ${completion.models}
+    foreach: ${runs}
     do:
-      desc: Compute metrics for each model
+      desc: Compute metrics for one condition x model combination
       cmd:
         - >
           Rscript ../../src/compute_metrics.R \
-            --predictions predictions_model_wise/${item.short_name}/${mapping.output_file} \
-            --index ${predict.index} \
+            --predictions results/${item.cond.name}_validate/${item.model.short_name}/${mapping.output_file} \
+            --index ${item.cond.validate_index} \
             --ground-truth ../../corpora/ground-truth.arrow \
-            --res_dir predictions_model_wise/${item.short_name}/ \
+            --res_dir results/${item.cond.name}_validate/${item.model.short_name}/ \
             --kind ${predict.text_type} \
             --n_threads 20 \
             --set_retrieval_only TRUE 
       deps:
         - ../../src/compute_metrics.R
-        - predictions_model_wise/${item.short_name}/${mapping.output_file}
-        - ${predict.index}
+        - results/${item.cond.name}_validate/${item.model.short_name}/${mapping.output_file}
+        - ${item.cond.validate_index}
         - ../../corpora/ground-truth.arrow
       params:
         - predict.text_type
       metrics:
-        - predictions_model_wise/${item.short_name}/scores_at_100_R.yaml:
+        - results/${item.cond.name}_validate/${item.model.short_name}/scores_at_100_R.yaml:
             cache: false
 
   summarize:

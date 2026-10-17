@@ -41,17 +41,20 @@ class IndividualPromptBuilder:
         )
         return prompts_gr.to_dict(orient="index")
 
-    def build_messages(self, doc_id: str, text: str = "") -> list[dict]:
+    def build_messages(self, doc_id: str, text: str = "", prompt_examples: list | None = None) -> list[dict]:
         """Build a chat-message list for the given document.
 
         Args:
             doc_id (str): Id of the document to build the prompt for.
             text (str): The (possibly truncated) document text to append as the final user turn.
+            prompt_examples (list | None): (text, keywords) pairs to use instead of the retrieved
+                examples, e.g. shortened ones; None uses the retrieved examples unchanged.
         Returns:
             list[dict]: Messages with roles system/user/assistant, ready for
                         `tokenizer.apply_chat_template()`.
         """
-        prompt_examples = self.prompts_by_id[doc_id]["prompt_examples"]
+        if prompt_examples is None:
+            prompt_examples = self.prompts_by_id[doc_id]["prompt_examples"]
         messages = []
         if self.custom_instruction != "":
             messages.append({"role": "system", "content": self.custom_instruction})

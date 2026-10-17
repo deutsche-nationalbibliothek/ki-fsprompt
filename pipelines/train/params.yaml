@@ -1,7 +1,7 @@
 
 train:
   # where is the actual text data for training stored? 
-  text_data: ../preprocess/abstract_intro/train.csv
+  text_data: ../preprocess/preprocessed/Sections/abstract_intro/train.csv
   # the name of the weaviate collection to store the training data for retrieval
   # text_type: title or ft
   # `ft` tells the preprocessing to chunk the text data into smaller pieces for embedding and storage in weaviate
@@ -14,8 +14,8 @@ train:
 
 predict:
    # where is the actual text data for indexing stored? 
-  text_data: ../preprocess/abstract_intro/validate.csv
-  index: ../preprocess/abstract_intro/validate.arrow
+  text_data: ../preprocess/preprocessed/Sections/abstract_intro/validate.csv
+  index: ../preprocess/preprocessed/Sections/abstract_intro/validate.arrow
   text_type: title
 # retrieve:
 #   input_text_data: ../preprocess/validate.csv

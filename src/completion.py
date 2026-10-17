@@ -159,6 +159,9 @@ class LLMCompletion:
         self.generate_seconds = 0.0
         self.prompt_tokens = 0
         self.output_tokens = 0
+        # documents whose few-shot examples / own text had to be shortened to fit max_total_tokens
+        self.n_examples_shortened = 0
+        self.n_docs_truncated = 0
         self.tokenizer = AutoTokenizer.from_pretrained(
             self.hf_model_name, trust_remote_code=True
         )
@@ -242,6 +245,57 @@ class LLMCompletion:
             print("-------------")
         return result
 
+    def prompt_length(self, messages):
+        """Number of tokens of the rendered chat prompt, including the assistant-turn prefix."""
+        # enable_thinking=False keeps output JSON-only; templates without this kwarg ignore it
+        encoded = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=True,
+            add_generation_prompt=True,
+            enable_thinking=False,
+        )
+        # transformers >= 5 returns a BatchEncoding instead of a list of token ids
+        return len(encoded["input_ids"] if hasattr(encoded, "keys") else encoded)
+
+    def shorten_examples(self, doc_id, text, budget):
+        """Cut the few-shot examples to one common token cap so that the full document fits into budget.
+
+        Only used when the complete prompt is too long: examples shorter than the cap stay untouched,
+        longer ones are cut at the end to the same length. Returns None if the prompt already fits
+        (examples unchanged), otherwise the shortened (text, keywords) pairs. If even empty examples
+        leave too little room, the caller truncates the document.
+        """
+        examples = self.prompt_builder.prompts_by_id[doc_id]["prompt_examples"]
+        overflow = self.prompt_length(self.prompt_builder.build_messages(doc_id, text)) - budget
+        if overflow <= 0:
+            return None
+        self.n_examples_shortened += 1
+        example_tokens = [self.tokenizer(str(t), add_special_tokens=False)["input_ids"] for t, _ in examples]
+        lengths = [len(t) for t in example_tokens]
+        shortened = examples
+        # re-tokenizing the rendered prompt can differ by a few tokens, so lower the cap until it fits
+        while overflow > 0:
+            removable = lambda cap: sum(max(length - cap, 0) for length in lengths)
+            low, high = 0, max(lengths)
+            while low < high:  # largest cap that still removes at least `overflow` tokens
+                mid = (low + high + 1) // 2
+                if removable(mid) >= overflow:
+                    low = mid
+                else:
+                    high = mid - 1
+            cap = low
+            shortened = [
+                (self.tokenizer.decode(tokens[:cap]), keywords)
+                for tokens, (_, keywords) in zip(example_tokens, examples)
+            ]
+            if cap == 0:
+                break
+            new_overflow = self.prompt_length(self.prompt_builder.build_messages(doc_id, text, shortened)) - budget
+            if new_overflow <= 0:
+                break
+            overflow += new_overflow
+        return shortened
+
     def predict_batch(self, documents):
         """Predicts the completion for a batch of documents.
 
@@ -251,23 +305,18 @@ class LLMCompletion:
         results = []
         prompts = []
         doc_ids = []
+        budget = self.max_total_tokens - self.max_new_tokens
         for _, row in documents.iterrows():
             row_content = row.text
-            empty_messages = self.prompt_builder.build_messages(row.doc_id, "")
-            # include the assistant-turn prefix so the truncation budget matches the true rendered prompt
-            # enable_thinking=False keeps output JSON-only; templates without this kwarg ignore it
-            empty_prompt_length = len(
-                self.tokenizer.apply_chat_template(
-                    empty_messages,
-                    tokenize=True,
-                    add_generation_prompt=True,
-                    enable_thinking=False,
-                )
-            )
-            free_tokens = self.max_total_tokens - self.max_new_tokens - empty_prompt_length
-            tokens = self.tokenizer(row_content)["input_ids"][:free_tokens]
-            chunk = self.tokenizer.decode(tokens)
-            messages = self.prompt_builder.build_messages(row.doc_id, chunk)
+            # the document is the important part: shorten the examples first, the document only as a last resort
+            examples = self.shorten_examples(row.doc_id, row_content, budget)
+            empty_messages = self.prompt_builder.build_messages(row.doc_id, "", examples)
+            free_tokens = max(budget - self.prompt_length(empty_messages), 0)
+            tokens = self.tokenizer(row_content)["input_ids"]
+            if len(tokens) > free_tokens:
+                self.n_docs_truncated += 1
+            chunk = self.tokenizer.decode(tokens[:free_tokens])
+            messages = self.prompt_builder.build_messages(row.doc_id, chunk, examples)
             prompt = self.tokenizer.apply_chat_template(
                 messages,
                 tokenize=False,
@@ -426,6 +475,8 @@ class LLMCompletion:
             "output_tokens": self.output_tokens,
             "prompt_tokens_per_doc": round(self.prompt_tokens / n_docs, 1) if n_docs else None,
             "output_tokens_per_doc": round(self.output_tokens / n_docs, 1) if n_docs else None,
+            "n_docs_examples_shortened": self.n_examples_shortened,
+            "n_docs_truncated": self.n_docs_truncated,
             "tokens_per_second": (
                 round((self.prompt_tokens + self.output_tokens) / self.generate_seconds, 1)
                 if self.generate_seconds else None

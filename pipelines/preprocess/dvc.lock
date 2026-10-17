@@ -105,8 +105,8 @@ stages:
       size: 81029
     - path: ../../src/data_adapters
       hash: md5
-      md5: 6292cbb405df650f7da3ecce04d05ce2.dir
-      size: 52924
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess.py
       hash: md5
@@ -126,13 +126,14 @@ stages:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc \\\n  --empty_policy drop \\\
       \n  --index_file ../../corpora/title/validate.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output toc/validate.csv \\\n  --index_output toc/validate.arrow\n"
+      \\\n  --csv_output preprocessed/Sections/toc/validate.csv \\\n  --index_output
+      preprocessed/Sections/toc/validate.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -143,13 +144,13 @@ stages:
       size: 47954
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc:
@@ -158,26 +159,27 @@ stages:
           cleaning: toc
           empty_policy: drop
     outs:
-    - path: toc/validate.arrow
+    - path: preprocessed/Sections/toc/validate.arrow
       hash: md5
       md5: 4d286263689d8e1aa2b6c3fcc1ff8609
       size: 32610
-    - path: toc/validate.csv
+    - path: preprocessed/Sections/toc/validate.csv
       hash: md5
-      md5: 0caadda3c4e0f6464d374cb7271f05b8
-      size: 2921416
+      md5: 7605362dc28ddfd720474866d2617c00
+      size: 2896665
   preprocess_toc@toc_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc \\\n  --empty_policy drop \\\
       \n  --index_file ../../corpora/title/train.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output toc/train.csv \\\n  --index_output toc/train.arrow\n"
+      \\\n  --csv_output preprocessed/Sections/toc/train.csv \\\n  --index_output
+      preprocessed/Sections/toc/train.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -188,13 +190,13 @@ stages:
       size: 507410
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc:
@@ -203,26 +205,26 @@ stages:
           cleaning: toc
           empty_policy: drop
     outs:
-    - path: toc/train.arrow
+    - path: preprocessed/Sections/toc/train.arrow
       hash: md5
-      md5: 95152667de0026c5dc8df75d742c0586
-      size: 351210
-    - path: toc/train.csv
+      md5: b584bf6bd5022df084ec91283bec3aad
+      size: 351602
+    - path: preprocessed/Sections/toc/train.csv
       hash: md5
-      md5: 3b67691dd48fab7124a0aee29ac8cb5c
-      size: 29413278
+      md5: b3aa0a0cda02e43b44b5ec91528392f7
+      size: 28992890
   preprocess_toc@toc_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc \\\n  --empty_policy drop \\\
       \n  --index_file ../../corpora/title/test.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output toc/test.csv \\\n  --index_output toc/test.arrow\n"
+      \\\n  --csv_output preprocessed/Sections/toc/test.csv \\\n  --index_output preprocessed/Sections/toc/test.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -233,13 +235,13 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 7923e383fd8893b7d0bcb82d85f02e64.dir
-      size: 49339
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
-      md5: 197945d26188552a452139baea6dbf2a
-      size: 4924
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
     params:
       params.yaml:
         toc:
@@ -248,27 +250,27 @@ stages:
           cleaning: toc
           empty_policy: drop
     outs:
-    - path: toc/test.arrow
+    - path: preprocessed/Sections/toc/test.arrow
       hash: md5
-      md5: 9da1db95ae79908410be26c7de7ca6c3
-      size: 36514
-    - path: toc/test.csv
+      md5: 4eac02bbeed82d7a976b68823831bcab
+      size: 36618
+    - path: preprocessed/Sections/toc/test.csv
       hash: md5
-      md5: 180410ff37364f13f956230e4caae1c2
-      size: 3363493
+      md5: ec3d6192453329d8b0d69b482a5a0036
+      size: 3321787
   preprocess_toc_strict@toc_strict_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
       drop \\\n  --index_file ../../corpora/title/test.arrow \\\n  --ground_truth
-      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/test.csv \\\n\
-      \  --index_output toc_strict/test.arrow\n"
+      ../../corpora/ground-truth.arrow \\\n  --csv_output preprocessed/Sections/toc_strict/test.csv
+      \\\n  --index_output preprocessed/Sections/toc_strict/test.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -294,27 +296,27 @@ stages:
           cleaning: toc_strict
           empty_policy: drop
     outs:
-    - path: toc_strict/test.arrow
+    - path: preprocessed/Sections/toc_strict/test.arrow
       hash: md5
-      md5: 9da1db95ae79908410be26c7de7ca6c3
-      size: 36514
-    - path: toc_strict/test.csv
+      md5: 4eac02bbeed82d7a976b68823831bcab
+      size: 36618
+    - path: preprocessed/Sections/toc_strict/test.csv
       hash: md5
-      md5: 1d299e5041cc6ae232c9ddaabf8be9cb
-      size: 3238698
+      md5: de2abb2a72da38700d92c985b738f9d8
+      size: 3207254
   preprocess_toc_strict@toc_strict_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
       drop \\\n  --index_file ../../corpora/title/train.arrow \\\n  --ground_truth
-      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/train.csv \\\n\
-      \  --index_output toc_strict/train.arrow\n"
+      ../../corpora/ground-truth.arrow \\\n  --csv_output preprocessed/Sections/toc_strict/train.csv
+      \\\n  --index_output preprocessed/Sections/toc_strict/train.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -340,27 +342,27 @@ stages:
           cleaning: toc_strict
           empty_policy: drop
     outs:
-    - path: toc_strict/train.arrow
+    - path: preprocessed/Sections/toc_strict/train.arrow
       hash: md5
-      md5: e77c502049a17b80cedc94c53ef917c8
-      size: 351138
-    - path: toc_strict/train.csv
+      md5: e5fcee1bf9ea9451676003f6fe747b95
+      size: 351586
+    - path: preprocessed/Sections/toc_strict/train.csv
       hash: md5
-      md5: f151a94a832759f975a697cc2805befd
-      size: 28032066
+      md5: a8b2b95e1c4ac0b4b79ae62abbae4bd1
+      size: 27734346
   preprocess_toc_strict@toc_strict_validate:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/TOC_Extraction
       \\\n  --part_suffix _TOC.md \\\n  --cleaning toc_strict \\\n  --empty_policy
       drop \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --ground_truth
-      ../../corpora/ground-truth.arrow \\\n  --csv_output toc_strict/validate.csv
-      \\\n  --index_output toc_strict/validate.arrow\n"
+      ../../corpora/ground-truth.arrow \\\n  --csv_output preprocessed/Sections/toc_strict/validate.csv
+      \\\n  --index_output preprocessed/Sections/toc_strict/validate.arrow\n"
     deps:
     - path: ../../corpora/Sections/TOC_Extraction
       hash: md5
-      md5: f842a20770bc44a92049055addafa747.dir
-      size: 55569011
-      nfiles: 10816
+      md5: 5c485f2bf469d30021fa52b9e7f223fb.dir
+      size: 54876777
+      nfiles: 11188
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -386,33 +388,33 @@ stages:
           cleaning: toc_strict
           empty_policy: drop
     outs:
-    - path: toc_strict/validate.arrow
+    - path: preprocessed/Sections/toc_strict/validate.arrow
       hash: md5
       md5: 4d286263689d8e1aa2b6c3fcc1ff8609
       size: 32610
-    - path: toc_strict/validate.csv
+    - path: preprocessed/Sections/toc_strict/validate.csv
       hash: md5
-      md5: 7f99dd3529c2b389992e4be5f931e3fb
-      size: 2810044
+      md5: e4296551d4ecee296336051c89406cd1
+      size: 2795707
   preprocess_abstract_intro@abstract_intro_test:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/Abstract_Extraction
       ../../corpora/Sections/Intro_Extraction_8k \\\n  --part_suffix _abstract.md
       _intro.md \\\n  --cleaning none \\\n  --empty_policy drop \\\n  --index_file
       ../../corpora/title/test.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output abstract_intro/test.csv \\\n  --index_output abstract_intro/test.arrow
-      \\\n  --source_output abstract_intro/test_sources.csv\n"
+      \\\n  --csv_output preprocessed/Sections/abstract_intro/test.csv \\\n  --index_output
+      preprocessed/Sections/abstract_intro/test.arrow \\\n  --source_output preprocessed/Sections/abstract_intro/test_sources.csv\n"
     deps:
     - path: ../../corpora/Sections/Abstract_Extraction
       hash: md5
-      md5: 9f961d64ff5288a7ab57bb92cec07f61.dir
-      size: 13843058
-      nfiles: 3670
+      md5: db123b314d395f69c71c8518cd196ef3.dir
+      size: 14411313
+      nfiles: 3837
     - path: ../../corpora/Sections/Intro_Extraction_8k
       hash: md5
-      md5: 2de73936fb3ab30786857e4d9b70c709.dir
-      size: 63420014
-      nfiles: 9335
+      md5: f05a952563836de003cfa3bf3904ca94.dir
+      size: 74532415
+      nfiles: 10979
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -423,8 +425,8 @@ stages:
       size: 53778
     - path: ../../src/data_adapters
       hash: md5
-      md5: 6292cbb405df650f7da3ecce04d05ce2.dir
-      size: 52924
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
       nfiles: 14
     - path: ../../src/preprocess_selektion.py
       hash: md5
@@ -440,37 +442,37 @@ stages:
           cleaning: none
           empty_policy: drop
     outs:
-    - path: abstract_intro/test.arrow
+    - path: preprocessed/Sections/abstract_intro/test.arrow
       hash: md5
-      md5: 4d169899660374bdcc4c6514ad6cd626
-      size: 31698
-    - path: abstract_intro/test.csv
+      md5: d263f5df11cc5650131910aa58c1be73
+      size: 35938
+    - path: preprocessed/Sections/abstract_intro/test.csv
       hash: md5
-      md5: 97e9398ea20e2b0c42b5116b11775121
-      size: 4550144
-    - path: abstract_intro/test_sources.csv
+      md5: dc0349601aa8b31f5a88eb78c3e17fe2
+      size: 5231902
+    - path: preprocessed/Sections/abstract_intro/test_sources.csv
       hash: md5
-      md5: d08e2773ffa26a53d89035ef8499cf89
-      size: 25157
+      md5: 9d3eb299787f1368596f739da4cc8bcd
+      size: 28621
   preprocess_abstract_intro@abstract_intro_validate:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/Abstract_Extraction
       ../../corpora/Sections/Intro_Extraction_8k \\\n  --part_suffix _abstract.md
       _intro.md \\\n  --cleaning none \\\n  --empty_policy drop \\\n  --index_file
       ../../corpora/title/validate.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output abstract_intro/validate.csv \\\n  --index_output abstract_intro/validate.arrow
-      \\\n  --source_output abstract_intro/validate_sources.csv\n"
+      \\\n  --csv_output preprocessed/Sections/abstract_intro/validate.csv \\\n  --index_output
+      preprocessed/Sections/abstract_intro/validate.arrow \\\n  --source_output preprocessed/Sections/abstract_intro/validate_sources.csv\n"
     deps:
     - path: ../../corpora/Sections/Abstract_Extraction
       hash: md5
-      md5: 9f961d64ff5288a7ab57bb92cec07f61.dir
-      size: 13843058
-      nfiles: 3670
+      md5: db123b314d395f69c71c8518cd196ef3.dir
+      size: 14411313
+      nfiles: 3837
     - path: ../../corpora/Sections/Intro_Extraction_8k
       hash: md5
-      md5: 2de73936fb3ab30786857e4d9b70c709.dir
-      size: 63420014
-      nfiles: 9335
+      md5: f05a952563836de003cfa3bf3904ca94.dir
+      size: 74532415
+      nfiles: 10979
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -498,37 +500,37 @@ stages:
           cleaning: none
           empty_policy: drop
     outs:
-    - path: abstract_intro/validate.arrow
+    - path: preprocessed/Sections/abstract_intro/validate.arrow
       hash: md5
-      md5: 3e7f75d412edfd330fe0b9ace5603b32
-      size: 28042
-    - path: abstract_intro/validate.csv
+      md5: 045194df6c868e0f43e3c605558fc2ed
+      size: 32218
+    - path: preprocessed/Sections/abstract_intro/validate.csv
       hash: md5
-      md5: 31df4895b5096159da6b0e464067a506
-      size: 3980615
-    - path: abstract_intro/validate_sources.csv
+      md5: 9f4613ec194111dfe0e5ba6554857000
+      size: 4734430
+    - path: preprocessed/Sections/abstract_intro/validate_sources.csv
       hash: md5
-      md5: 865bcf23ada5833308475b0d8fb75948
-      size: 22168
+      md5: d29e8bf7dc64810b4433a91c54007252
+      size: 25596
   preprocess_abstract_intro@abstract_intro_train:
     cmd:
     - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Sections/Abstract_Extraction
       ../../corpora/Sections/Intro_Extraction_8k \\\n  --part_suffix _abstract.md
       _intro.md \\\n  --cleaning none \\\n  --empty_policy drop \\\n  --index_file
       ../../corpora/title/train.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
-      \\\n  --csv_output abstract_intro/train.csv \\\n  --index_output abstract_intro/train.arrow
-      \\\n  --source_output abstract_intro/train_sources.csv\n"
+      \\\n  --csv_output preprocessed/Sections/abstract_intro/train.csv \\\n  --index_output
+      preprocessed/Sections/abstract_intro/train.arrow \\\n  --source_output preprocessed/Sections/abstract_intro/train_sources.csv\n"
     deps:
     - path: ../../corpora/Sections/Abstract_Extraction
       hash: md5
-      md5: 9f961d64ff5288a7ab57bb92cec07f61.dir
-      size: 13843058
-      nfiles: 3670
+      md5: db123b314d395f69c71c8518cd196ef3.dir
+      size: 14411313
+      nfiles: 3837
     - path: ../../corpora/Sections/Intro_Extraction_8k
       hash: md5
-      md5: 2de73936fb3ab30786857e4d9b70c709.dir
-      size: 63420014
-      nfiles: 9335
+      md5: f05a952563836de003cfa3bf3904ca94.dir
+      size: 74532415
+      nfiles: 10979
     - path: ../../corpora/ground-truth.arrow
       hash: md5
       md5: ae01d2322dc9d6af16d8f7d712a7ca8a
@@ -556,24 +558,24 @@ stages:
           cleaning: none
           empty_policy: drop
     outs:
-    - path: abstract_intro/train.arrow
+    - path: preprocessed/Sections/abstract_intro/train.arrow
       hash: md5
-      md5: d7c68c3a76ef9a15be2f92d2f7d3c3db
-      size: 321442
-    - path: abstract_intro/train.csv
+      md5: 2e984338a587cca80c690d2449245433
+      size: 348186
+    - path: preprocessed/Sections/abstract_intro/train.csv
       hash: md5
-      md5: d304c807cd609322faa78741ba4b6cc7
-      size: 42067613
-    - path: abstract_intro/train_sources.csv
+      md5: 147ef374a15c233cff2cb0e164ccf28a
+      size: 46314833
+    - path: preprocessed/Sections/abstract_intro/train_sources.csv
       hash: md5
-      md5: 4e74b28cd72f41f78c144cc69d01e4cb
-      size: 255400
+      md5: 44fab55f021fd8ad0e6e7902378e8036
+      size: 276705
   combine_title_abstract_intro@title_abstract_intro_train:
     cmd:
     - "python ../../src/combine_selections.py \\\n  --part Titel train.csv \\\n  --part
-      Abstract abstract_intro/train.csv abstract_intro/train_sources.csv \\\n  --index_file
-      ../../corpora/title/train.arrow \\\n  --csv_output title_abstract_intro/train.csv
-      \\\n  --index_output title_abstract_intro/train.arrow\n"
+      Abstract preprocessed/Sections/abstract_intro/train.csv preprocessed/Sections/abstract_intro/train_sources.csv
+      \\\n  --index_file ../../corpora/title/train.arrow \\\n  --csv_output preprocessed/bedingungen/title_abstract_intro/train.csv
+      \\\n  --index_output preprocessed/bedingungen/title_abstract_intro/train.arrow\n"
     deps:
     - path: ../../corpora/title/train.arrow
       hash: md5
@@ -587,33 +589,33 @@ stages:
       hash: md5
       md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
       size: 5634
-    - path: abstract_intro/train.csv
+    - path: preprocessed/Sections/abstract_intro/train.csv
       hash: md5
-      md5: d304c807cd609322faa78741ba4b6cc7
-      size: 42067613
-    - path: abstract_intro/train_sources.csv
+      md5: 147ef374a15c233cff2cb0e164ccf28a
+      size: 46314833
+    - path: preprocessed/Sections/abstract_intro/train_sources.csv
       hash: md5
-      md5: 4e74b28cd72f41f78c144cc69d01e4cb
-      size: 255400
+      md5: 44fab55f021fd8ad0e6e7902378e8036
+      size: 276705
     - path: train.csv
       hash: md5
       md5: 38bf27a271bf53faf79203f9a1c4cf5b
       size: 2728392
     outs:
-    - path: title_abstract_intro/train.arrow
+    - path: preprocessed/bedingungen/title_abstract_intro/train.arrow
       hash: md5
-      md5: d7c68c3a76ef9a15be2f92d2f7d3c3db
-      size: 321442
-    - path: title_abstract_intro/train.csv
+      md5: 2e984338a587cca80c690d2449245433
+      size: 348186
+    - path: preprocessed/bedingungen/title_abstract_intro/train.csv
       hash: md5
-      md5: e378cad85972d56979feec343fbd1a6c
-      size: 43389286
+      md5: 42acdbf4a871627bb432971d7fa74d3d
+      size: 47742334
   combine_title_abstract_intro@title_abstract_intro_validate:
     cmd:
     - "python ../../src/combine_selections.py \\\n  --part Titel validate.csv \\\n\
-      \  --part Abstract abstract_intro/validate.csv abstract_intro/validate_sources.csv
-      \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --csv_output title_abstract_intro/validate.csv
-      \\\n  --index_output title_abstract_intro/validate.arrow\n"
+      \  --part Abstract preprocessed/Sections/abstract_intro/validate.csv preprocessed/Sections/abstract_intro/validate_sources.csv
+      \\\n  --index_file ../../corpora/title/validate.arrow \\\n  --csv_output preprocessed/bedingungen/title_abstract_intro/validate.csv
+      \\\n  --index_output preprocessed/bedingungen/title_abstract_intro/validate.arrow\n"
     deps:
     - path: ../../corpora/title/validate.arrow
       hash: md5
@@ -627,33 +629,33 @@ stages:
       hash: md5
       md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
       size: 5634
-    - path: abstract_intro/validate.csv
+    - path: preprocessed/Sections/abstract_intro/validate.csv
       hash: md5
-      md5: 31df4895b5096159da6b0e464067a506
-      size: 3980615
-    - path: abstract_intro/validate_sources.csv
+      md5: 9f4613ec194111dfe0e5ba6554857000
+      size: 4734430
+    - path: preprocessed/Sections/abstract_intro/validate_sources.csv
       hash: md5
-      md5: 865bcf23ada5833308475b0d8fb75948
-      size: 22168
+      md5: d29e8bf7dc64810b4433a91c54007252
+      size: 25596
     - path: validate.csv
       hash: md5
       md5: a1c6705d8c50e108848b39a8f7d0af6a
       size: 236928
     outs:
-    - path: title_abstract_intro/validate.arrow
+    - path: preprocessed/bedingungen/title_abstract_intro/validate.arrow
       hash: md5
-      md5: 3e7f75d412edfd330fe0b9ace5603b32
-      size: 28042
-    - path: title_abstract_intro/validate.csv
+      md5: 045194df6c868e0f43e3c605558fc2ed
+      size: 32218
+    - path: preprocessed/bedingungen/title_abstract_intro/validate.csv
       hash: md5
-      md5: cd337b633a6a0d55087fad8d50df5afd
-      size: 4090904
+      md5: fb7511249ccb49369817cdac9feb60bb
+      size: 4860529
   combine_title_abstract_intro@title_abstract_intro_test:
     cmd:
     - "python ../../src/combine_selections.py \\\n  --part Titel test.csv \\\n  --part
-      Abstract abstract_intro/test.csv abstract_intro/test_sources.csv \\\n  --index_file
-      ../../corpora/title/test.arrow \\\n  --csv_output title_abstract_intro/test.csv
-      \\\n  --index_output title_abstract_intro/test.arrow\n"
+      Abstract preprocessed/Sections/abstract_intro/test.csv preprocessed/Sections/abstract_intro/test_sources.csv
+      \\\n  --index_file ../../corpora/title/test.arrow \\\n  --csv_output preprocessed/bedingungen/title_abstract_intro/test.csv
+      \\\n  --index_output preprocessed/bedingungen/title_abstract_intro/test.arrow\n"
     deps:
     - path: ../../corpora/title/test.arrow
       hash: md5
@@ -667,24 +669,147 @@ stages:
       hash: md5
       md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
       size: 5634
-    - path: abstract_intro/test.csv
+    - path: preprocessed/Sections/abstract_intro/test.csv
       hash: md5
-      md5: 97e9398ea20e2b0c42b5116b11775121
-      size: 4550144
-    - path: abstract_intro/test_sources.csv
+      md5: dc0349601aa8b31f5a88eb78c3e17fe2
+      size: 5231902
+    - path: preprocessed/Sections/abstract_intro/test_sources.csv
       hash: md5
-      md5: d08e2773ffa26a53d89035ef8499cf89
-      size: 25157
+      md5: 9d3eb299787f1368596f739da4cc8bcd
+      size: 28621
     - path: test.csv
       hash: md5
       md5: 968ec0b8c5d9f3517061be08f3e7f7c8
       size: 258607
     outs:
-    - path: title_abstract_intro/test.arrow
+    - path: preprocessed/bedingungen/title_abstract_intro/test.arrow
       hash: md5
-      md5: 4d169899660374bdcc4c6514ad6cd626
-      size: 31698
-    - path: title_abstract_intro/test.csv
+      md5: d263f5df11cc5650131910aa58c1be73
+      size: 35938
+    - path: preprocessed/bedingungen/title_abstract_intro/test.csv
       hash: md5
-      md5: 0bd6c5033f80eaaee61e9a55c3744836
-      size: 4671740
+      md5: c5777fe911d5afc5c398aca811eca65e
+      size: 5369258
+  combine_abstract_intro_toc@abstract_intro_toc_test:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Abstract preprocessed/Sections/abstract_intro/test.csv
+      preprocessed/Sections/abstract_intro/test_sources.csv \\\n  --part Inhaltsverzeichnis
+      preprocessed/Sections/toc_strict/test.csv \\\n  --index_file ../../corpora/title/test.arrow
+      \\\n  --csv_output preprocessed/bedingungen/abstract_intro_toc/test.csv \\\n\
+      \  --index_output preprocessed/bedingungen/abstract_intro_toc/test.arrow\n"
+    deps:
+    - path: ../../corpora/title/test.arrow
+      hash: md5
+      md5: 12895b886ef1dbf9609dd26a392a7c71
+      size: 53778
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: preprocessed/Sections/abstract_intro/test.csv
+      hash: md5
+      md5: dc0349601aa8b31f5a88eb78c3e17fe2
+      size: 5231902
+    - path: preprocessed/Sections/abstract_intro/test_sources.csv
+      hash: md5
+      md5: 9d3eb299787f1368596f739da4cc8bcd
+      size: 28621
+    - path: preprocessed/Sections/toc_strict/test.csv
+      hash: md5
+      md5: de2abb2a72da38700d92c985b738f9d8
+      size: 3207254
+    outs:
+    - path: preprocessed/bedingungen/abstract_intro_toc/test.arrow
+      hash: md5
+      md5: d263f5df11cc5650131910aa58c1be73
+      size: 35938
+    - path: preprocessed/bedingungen/abstract_intro_toc/test.csv
+      hash: md5
+      md5: 513fe7a3f82849636987bd71e5b63370
+      size: 8266994
+  combine_abstract_intro_toc@abstract_intro_toc_train:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Abstract preprocessed/Sections/abstract_intro/train.csv
+      preprocessed/Sections/abstract_intro/train_sources.csv \\\n  --part Inhaltsverzeichnis
+      preprocessed/Sections/toc_strict/train.csv \\\n  --index_file ../../corpora/title/train.arrow
+      \\\n  --csv_output preprocessed/bedingungen/abstract_intro_toc/train.csv \\\n\
+      \  --index_output preprocessed/bedingungen/abstract_intro_toc/train.arrow\n"
+    deps:
+    - path: ../../corpora/title/train.arrow
+      hash: md5
+      md5: 05253401da8ae1c79d15d9863cc6a017
+      size: 507410
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: preprocessed/Sections/abstract_intro/train.csv
+      hash: md5
+      md5: 147ef374a15c233cff2cb0e164ccf28a
+      size: 46314833
+    - path: preprocessed/Sections/abstract_intro/train_sources.csv
+      hash: md5
+      md5: 44fab55f021fd8ad0e6e7902378e8036
+      size: 276705
+    - path: preprocessed/Sections/toc_strict/train.csv
+      hash: md5
+      md5: a8b2b95e1c4ac0b4b79ae62abbae4bd1
+      size: 27734346
+    outs:
+    - path: preprocessed/bedingungen/abstract_intro_toc/train.arrow
+      hash: md5
+      md5: 631acabe34671aba8a9a94872904af06
+      size: 348170
+    - path: preprocessed/bedingungen/abstract_intro_toc/train.csv
+      hash: md5
+      md5: c0b36002c0ab646ae8175628e9a1d113
+      size: 72681412
+  combine_abstract_intro_toc@abstract_intro_toc_validate:
+    cmd:
+    - "python ../../src/combine_selections.py \\\n  --part Abstract preprocessed/Sections/abstract_intro/validate.csv
+      preprocessed/Sections/abstract_intro/validate_sources.csv \\\n  --part Inhaltsverzeichnis
+      preprocessed/Sections/toc_strict/validate.csv \\\n  --index_file ../../corpora/title/validate.arrow
+      \\\n  --csv_output preprocessed/bedingungen/abstract_intro_toc/validate.csv
+      \\\n  --index_output preprocessed/bedingungen/abstract_intro_toc/validate.arrow\n"
+    deps:
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/combine_selections.py
+      hash: md5
+      md5: e20b5731180becdc2340ee7cf24c4803
+      size: 4583
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    - path: preprocessed/Sections/abstract_intro/validate.csv
+      hash: md5
+      md5: 9f4613ec194111dfe0e5ba6554857000
+      size: 4734430
+    - path: preprocessed/Sections/abstract_intro/validate_sources.csv
+      hash: md5
+      md5: d29e8bf7dc64810b4433a91c54007252
+      size: 25596
+    - path: preprocessed/Sections/toc_strict/validate.csv
+      hash: md5
+      md5: e4296551d4ecee296336051c89406cd1
+      size: 2795707
+    outs:
+    - path: preprocessed/bedingungen/abstract_intro_toc/validate.arrow
+      hash: md5
+      md5: 045194df6c868e0f43e3c605558fc2ed
+      size: 32218
+    - path: preprocessed/bedingungen/abstract_intro_toc/validate.csv
+      hash: md5
+      md5: 5670511124b8b866375923d6efb2cc5e
+      size: 7406306

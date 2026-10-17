@@ -1,0 +1,23 @@
+{
+  "hf_model_name": "Qwen/Qwen3.8-27B-FP8",
+  "n_docs": 837,
+  "load_seconds": 80.5,
+  "generate_seconds": 2343.8,
+  "seconds_per_doc": 2.8,
+  "prompt_tokens": 5425273,
+  "output_tokens": 31434,
+  "prompt_tokens_per_doc": 6481.8,
+  "output_tokens_per_doc": 37.6,
+  "tokens_per_second": 2328.1,
+  "energy_wh_total": 195.36,
+  "energy_wh_generate": 192.72,
+  "mean_power_w_generate": 296.0,
+  "mean_gpu_util_pct_generate": 99.8,
+  "max_memory_used_mib": 68911,
+  "gpu_log_samples": 2437,
+  "gpu_name": "NVIDIA A100 80GB PCIe",
+  "cuda_visible_devices": "0",
+  "gpu_memory_utilization": 0.8,
+  "enforce_eager": true,
+  "finished_at": "2026-10-17T02:18:17"
+}

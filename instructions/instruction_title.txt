@@ -1,0 +1,1 @@
+Extrahiere Schlagwörter aus Titeln. Gib ausschließlich ein JSON-Objekt im Format {"keywords": ["Schlagwort 1", "Schlagwort 2"]} zurück.

@@ -1,0 +1,23 @@
+{
+  "hf_model_name": "mistralai/Mistral-7B-Instruct-v0.3",
+  "n_docs": 837,
+  "load_seconds": 14.6,
+  "generate_seconds": 727.2,
+  "seconds_per_doc": 0.869,
+  "prompt_tokens": 6856758,
+  "output_tokens": 52298,
+  "prompt_tokens_per_doc": 8192.1,
+  "output_tokens_per_doc": 62.5,
+  "tokens_per_second": 9500.5,
+  "energy_wh_total": 60.85,
+  "energy_wh_generate": 60.26,
+  "mean_power_w_generate": 298.2,
+  "mean_gpu_util_pct_generate": 99.7,
+  "max_memory_used_mib": 67399,
+  "gpu_log_samples": 752,
+  "gpu_name": "NVIDIA A100 80GB PCIe",
+  "cuda_visible_devices": "0",
+  "gpu_memory_utilization": 0.8,
+  "enforce_eager": true,
+  "finished_at": "2026-10-17T00:18:29"
+}

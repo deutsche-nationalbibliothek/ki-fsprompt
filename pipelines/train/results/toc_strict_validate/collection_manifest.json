@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-10-16T22:05:18.608912+00:00",
+  "collection_name": "toc_strict_train",
+  "embedding_model": "BAAI/bge-m3",
+  "text_type": "title",
+  "rows_prepared": 9042,
+  "inserted_count": 9042,
+  "failed_count": 0,
+  "overwrite": true,
+  "weaviate_port": 8087
+}

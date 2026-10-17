@@ -1,0 +1,23 @@
+{
+  "hf_model_name": "RedHatAI/gemma-4-31B-it-FP8-block",
+  "n_docs": 837,
+  "load_seconds": 126.7,
+  "generate_seconds": 152.5,
+  "seconds_per_doc": 0.182,
+  "prompt_tokens": 381173,
+  "output_tokens": 24672,
+  "prompt_tokens_per_doc": 455.4,
+  "output_tokens_per_doc": 29.5,
+  "tokens_per_second": 2660.7,
+  "energy_wh_total": 15.59,
+  "energy_wh_generate": 12.55,
+  "mean_power_w_generate": 295.1,
+  "mean_gpu_util_pct_generate": 97.8,
+  "max_memory_used_mib": 66303,
+  "gpu_log_samples": 286,
+  "gpu_name": "NVIDIA A100 80GB PCIe",
+  "cuda_visible_devices": "1",
+  "gpu_memory_utilization": 0.8,
+  "enforce_eager": true,
+  "finished_at": "2026-10-17T02:54:05"
+}

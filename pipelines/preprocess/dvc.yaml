@@ -161,3 +161,29 @@ stages:
       outs:
         - ${item.output}
         - ${item.index_output}
+
+
+# 5: (Abstract, sonst Einleitung) + TOC strict — Bedingung D
+
+  combine_abstract_intro_toc:
+    foreach: ${abstract_intro_toc_datasets}
+    do:
+      desc: Abstract (introduction as fallback) followed by the strict TOC, only documents with both
+      cmd:
+        - >
+          python ../../src/combine_selections.py \
+            --part Abstract ${item.text_csv} ${item.sources_csv} \
+            --part Inhaltsverzeichnis ${item.toc_csv} \
+            --index_file ${item.index_file} \
+            --csv_output ${item.output} \
+            --index_output ${item.index_output}
+      deps:
+        - ../../src/combine_selections.py
+        - ../../src/preprocess_selektion.py
+        - ${item.text_csv}
+        - ${item.sources_csv}
+        - ${item.toc_csv}
+        - ${item.index_file}
+      outs:
+        - ${item.output}
+        - ${item.index_output}

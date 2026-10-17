@@ -25,16 +25,16 @@ toc:
 toc_datasets:
   toc_train:
     index_file: ../../corpora/title/train.arrow
-    output: toc/train.csv
-    index_output: toc/train.arrow
+    output: preprocessed/Sections/toc/train.csv
+    index_output: preprocessed/Sections/toc/train.arrow
   toc_validate:
     index_file: ../../corpora/title/validate.arrow
-    output: toc/validate.csv
-    index_output: toc/validate.arrow
+    output: preprocessed/Sections/toc/validate.csv
+    index_output: preprocessed/Sections/toc/validate.arrow
   toc_test:
     index_file: ../../corpora/title/test.arrow
-    output: toc/test.csv
-    index_output: toc/test.arrow
+    output: preprocessed/Sections/toc/test.csv
+    index_output: preprocessed/Sections/toc/test.arrow
 
 
 # 2: TOC-Extraktion mit Entfernung der Strukturwoerter (Vergleichsbedingung zu 1)
@@ -47,16 +47,16 @@ toc_strict:
 toc_strict_datasets:
   toc_strict_train:
     index_file: ../../corpora/title/train.arrow
-    output: toc_strict/train.csv
-    index_output: toc_strict/train.arrow
+    output: preprocessed/Sections/toc_strict/train.csv
+    index_output: preprocessed/Sections/toc_strict/train.arrow
   toc_strict_validate:
     index_file: ../../corpora/title/validate.arrow
-    output: toc_strict/validate.csv
-    index_output: toc_strict/validate.arrow
+    output: preprocessed/Sections/toc_strict/validate.csv
+    index_output: preprocessed/Sections/toc_strict/validate.arrow
   toc_strict_test:
     index_file: ../../corpora/title/test.arrow
-    output: toc_strict/test.csv
-    index_output: toc_strict/test.arrow
+    output: preprocessed/Sections/toc_strict/test.csv
+    index_output: preprocessed/Sections/toc_strict/test.arrow
 
 
 # 3: Abstract, wo keins vorhanden ist: Einleitung (erste 8.000 Zeichen)
@@ -72,41 +72,66 @@ abstract_intro:
 abstract_intro_datasets:
   abstract_intro_train:
     index_file: ../../corpora/title/train.arrow
-    output: abstract_intro/train.csv
-    index_output: abstract_intro/train.arrow
-    source_output: abstract_intro/train_sources.csv
+    output: preprocessed/Sections/abstract_intro/train.csv
+    index_output: preprocessed/Sections/abstract_intro/train.arrow
+    source_output: preprocessed/Sections/abstract_intro/train_sources.csv
   abstract_intro_validate:
     index_file: ../../corpora/title/validate.arrow
-    output: abstract_intro/validate.csv
-    index_output: abstract_intro/validate.arrow
-    source_output: abstract_intro/validate_sources.csv
+    output: preprocessed/Sections/abstract_intro/validate.csv
+    index_output: preprocessed/Sections/abstract_intro/validate.arrow
+    source_output: preprocessed/Sections/abstract_intro/validate_sources.csv
   abstract_intro_test:
     index_file: ../../corpora/title/test.arrow
-    output: abstract_intro/test.csv
-    index_output: abstract_intro/test.arrow
-    source_output: abstract_intro/test_sources.csv
+    output: preprocessed/Sections/abstract_intro/test.csv
+    index_output: preprocessed/Sections/abstract_intro/test.arrow
+    source_output: preprocessed/Sections/abstract_intro/test_sources.csv
 
 
 # 4: Titel + (Abstract, sonst Einleitung) — Bedingung C
 title_abstract_intro_datasets:
   title_abstract_intro_train:
     title_csv: train.csv
-    text_csv: abstract_intro/train.csv
-    sources_csv: abstract_intro/train_sources.csv
+    text_csv: preprocessed/Sections/abstract_intro/train.csv
+    sources_csv: preprocessed/Sections/abstract_intro/train_sources.csv
     index_file: ../../corpora/title/train.arrow
-    output: title_abstract_intro/train.csv
-    index_output: title_abstract_intro/train.arrow
+    output: preprocessed/bedingungen/title_abstract_intro/train.csv
+    index_output: preprocessed/bedingungen/title_abstract_intro/train.arrow
   title_abstract_intro_validate:
     title_csv: validate.csv
-    text_csv: abstract_intro/validate.csv
-    sources_csv: abstract_intro/validate_sources.csv
+    text_csv: preprocessed/Sections/abstract_intro/validate.csv
+    sources_csv: preprocessed/Sections/abstract_intro/validate_sources.csv
     index_file: ../../corpora/title/validate.arrow
-    output: title_abstract_intro/validate.csv
-    index_output: title_abstract_intro/validate.arrow
+    output: preprocessed/bedingungen/title_abstract_intro/validate.csv
+    index_output: preprocessed/bedingungen/title_abstract_intro/validate.arrow
   title_abstract_intro_test:
     title_csv: test.csv
-    text_csv: abstract_intro/test.csv
-    sources_csv: abstract_intro/test_sources.csv
+    text_csv: preprocessed/Sections/abstract_intro/test.csv
+    sources_csv: preprocessed/Sections/abstract_intro/test_sources.csv
     index_file: ../../corpora/title/test.arrow
-    output: title_abstract_intro/test.csv
-    index_output: title_abstract_intro/test.arrow
+    output: preprocessed/bedingungen/title_abstract_intro/test.csv
+    index_output: preprocessed/bedingungen/title_abstract_intro/test.arrow
+
+
+# 5: (Abstract, sonst Einleitung) + TOC strict — Bedingung D
+abstract_intro_toc_datasets:
+  abstract_intro_toc_train:
+    text_csv: preprocessed/Sections/abstract_intro/train.csv
+    sources_csv: preprocessed/Sections/abstract_intro/train_sources.csv
+    toc_csv: preprocessed/Sections/toc_strict/train.csv
+    index_file: ../../corpora/title/train.arrow
+    output: preprocessed/bedingungen/abstract_intro_toc/train.csv
+    index_output: preprocessed/bedingungen/abstract_intro_toc/train.arrow
+  abstract_intro_toc_validate:
+    text_csv: preprocessed/Sections/abstract_intro/validate.csv
+    sources_csv: preprocessed/Sections/abstract_intro/validate_sources.csv
+    toc_csv: preprocessed/Sections/toc_strict/validate.csv
+    index_file: ../../corpora/title/validate.arrow
+    output: preprocessed/bedingungen/abstract_intro_toc/validate.csv
+    index_output: preprocessed/bedingungen/abstract_intro_toc/validate.arrow
+  abstract_intro_toc_test:
+    text_csv: preprocessed/Sections/abstract_intro/test.csv
+    sources_csv: preprocessed/Sections/abstract_intro/test_sources.csv
+    toc_csv: preprocessed/Sections/toc_strict/test.csv
+    index_file: ../../corpora/title/test.arrow
+    output: preprocessed/bedingungen/abstract_intro_toc/test.csv
+    index_output: preprocessed/bedingungen/abstract_intro_toc/test.arrow
