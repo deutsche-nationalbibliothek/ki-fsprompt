@@ -13,3 +13,5 @@ pipelines/train/predictions_model_wise/*/removed_mapped_predictions.csv
 
 
 ki-fsprompt-agentic.ipynb
+# lokale Diagramme (README_Selektion.md)
+docs/
