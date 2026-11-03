@@ -1,0 +1,11 @@
+.venv/
+runs/
+# run results stay local, only the scores are tracked
+results/**
+!results/**/
+!results/**/scores_at_100_R.yaml
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+gnd_graph/*
+!gnd_graph/manifest.json

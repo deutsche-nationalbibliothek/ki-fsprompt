@@ -1,0 +1,1 @@
+- Nutze die Angabe, wie oft ein Begriff in der Erschließung vergeben wurde: Ein Begriff, der nie oder kaum vergeben wurde, braucht einen klaren Beleg im gelesenen Text. Sonst lass ihn weg.

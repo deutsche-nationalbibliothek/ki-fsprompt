@@ -165,6 +165,13 @@ conditions:
     validate_index: ../preprocess/preprocessed/bedingungen/abstract_intro_toc/validate.arrow
     collection: abstract_intro_toc_train
     instruction: instructions/instruction_abstract_intro_toc.txt
+  dnb_baseline: &dnb_baseline          # DNB-Baseline: erste 30k Zeichen Volltext (PDFBox), wie DNB es aktuell macht
+    name: dnb_baseline
+    train: ../preprocess/preprocessed/bedingungen/dnb_baseline/train.csv
+    validate: ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.csv
+    validate_index: ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.arrow
+    collection: dnb_baseline_train
+    instruction: instructions/instruction_dnb_baseline.txt
 
 # nur die Modelle, die in den Bedingungsvergleich gehen
 study_models:
@@ -204,3 +211,4 @@ runs:
   abstract_intro_toc-mistral-7B-0p3:     {cond: *abstract_intro_toc,    model: *mistral}
   abstract_intro_toc-qwen-3p8-27B:       {cond: *abstract_intro_toc,    model: *qwen}
   abstract_intro_toc-gemma-4-31B-fp8:    {cond: *abstract_intro_toc,    model: *gemma}
+  dnb_baseline-qwen-3p8-27B:             {cond: *dnb_baseline,          model: *qwen}
