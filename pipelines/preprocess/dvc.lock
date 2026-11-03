@@ -813,3 +813,141 @@ stages:
       hash: md5
       md5: 5670511124b8b866375923d6efb2cc5e
       size: 7406306
+  preprocess_dnb_baseline@dnb_baseline_train:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Fulltext_30k_PDF_Box
+      \\\n  --part_suffix .md \\\n  --cleaning none \\\n  --empty_policy drop \\\n\
+      \  --index_file ../../corpora/title/train.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
+      \\\n  --csv_output preprocessed/bedingungen/dnb_baseline/train.csv \\\n  --index_output
+      preprocessed/bedingungen/dnb_baseline/train.arrow\n"
+    deps:
+    - path: ../../corpora/Fulltext_30k_PDF_Box
+      hash: md5
+      md5: a1cfeab68cadd714255e97d1e6322bcc.dir
+      size: 350139145
+      nfiles: 11519
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/train.arrow
+      hash: md5
+      md5: 05253401da8ae1c79d15d9863cc6a017
+      size: 507410
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    params:
+      params.yaml:
+        dnb_baseline:
+          part_dir: ../../corpora/Fulltext_30k_PDF_Box
+          part_suffix: .md
+          cleaning: none
+          empty_policy: drop
+    outs:
+    - path: preprocessed/bedingungen/dnb_baseline/train.arrow
+      hash: md5
+      md5: b584bf6bd5022df084ec91283bec3aad
+      size: 351602
+    - path: preprocessed/bedingungen/dnb_baseline/train.csv
+      hash: md5
+      md5: 1662e436c971eec976ad6a2acc12cf8f
+      size: 276305508
+  preprocess_dnb_baseline@dnb_baseline_validate:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Fulltext_30k_PDF_Box
+      \\\n  --part_suffix .md \\\n  --cleaning none \\\n  --empty_policy drop \\\n\
+      \  --index_file ../../corpora/title/validate.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
+      \\\n  --csv_output preprocessed/bedingungen/dnb_baseline/validate.csv \\\n \
+      \ --index_output preprocessed/bedingungen/dnb_baseline/validate.arrow\n"
+    deps:
+    - path: ../../corpora/Fulltext_30k_PDF_Box
+      hash: md5
+      md5: a1cfeab68cadd714255e97d1e6322bcc.dir
+      size: 350139145
+      nfiles: 11519
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/validate.arrow
+      hash: md5
+      md5: 3b8cb92de26ab013eb409ae7f83101f4
+      size: 47954
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    params:
+      params.yaml:
+        dnb_baseline:
+          part_dir: ../../corpora/Fulltext_30k_PDF_Box
+          part_suffix: .md
+          cleaning: none
+          empty_policy: drop
+    outs:
+    - path: preprocessed/bedingungen/dnb_baseline/validate.arrow
+      hash: md5
+      md5: 4d286263689d8e1aa2b6c3fcc1ff8609
+      size: 32610
+    - path: preprocessed/bedingungen/dnb_baseline/validate.csv
+      hash: md5
+      md5: 500713afe4424e7027fcec68b89dfd0f
+      size: 25684370
+  preprocess_dnb_baseline@dnb_baseline_test:
+    cmd:
+    - "python ../../src/preprocess_selektion.py \\\n  --part_dir ../../corpora/Fulltext_30k_PDF_Box
+      \\\n  --part_suffix .md \\\n  --cleaning none \\\n  --empty_policy drop \\\n\
+      \  --index_file ../../corpora/title/test.arrow \\\n  --ground_truth ../../corpora/ground-truth.arrow
+      \\\n  --csv_output preprocessed/bedingungen/dnb_baseline/test.csv \\\n  --index_output
+      preprocessed/bedingungen/dnb_baseline/test.arrow\n"
+    deps:
+    - path: ../../corpora/Fulltext_30k_PDF_Box
+      hash: md5
+      md5: a1cfeab68cadd714255e97d1e6322bcc.dir
+      size: 350139145
+      nfiles: 11519
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../corpora/title/test.arrow
+      hash: md5
+      md5: 12895b886ef1dbf9609dd26a392a7c71
+      size: 53778
+    - path: ../../src/data_adapters
+      hash: md5
+      md5: 665f7bfb4fb1daae89aca01714df0ef0.dir
+      size: 55256
+      nfiles: 14
+    - path: ../../src/preprocess_selektion.py
+      hash: md5
+      md5: 88e1dd23aed907cc6ea7ba3ab8fa187b
+      size: 5634
+    params:
+      params.yaml:
+        dnb_baseline:
+          part_dir: ../../corpora/Fulltext_30k_PDF_Box
+          part_suffix: .md
+          cleaning: none
+          empty_policy: drop
+    outs:
+    - path: preprocessed/bedingungen/dnb_baseline/test.arrow
+      hash: md5
+      md5: 4eac02bbeed82d7a976b68823831bcab
+      size: 36618
+    - path: preprocessed/bedingungen/dnb_baseline/test.csv
+      hash: md5
+      md5: c0c795d054af4a5b53e2833706764cb1
+      size: 28904770

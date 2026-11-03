@@ -187,3 +187,33 @@ stages:
       outs:
         - ${item.output}
         - ${item.index_output}
+
+
+# 6: DNB-Baseline — Volltext (PDFBox, 30k Zeichen)
+
+  preprocess_dnb_baseline:
+    foreach: ${dnb_baseline_datasets}
+    do:
+      desc: PDFBox full text (first 30k chars) per idn, as currently used at DNB
+      cmd:
+        - >
+          python ../../src/preprocess_selektion.py \
+            --part_dir ${dnb_baseline.part_dir} \
+            --part_suffix ${dnb_baseline.part_suffix} \
+            --cleaning ${dnb_baseline.cleaning} \
+            --empty_policy ${dnb_baseline.empty_policy} \
+            --index_file ${item.index_file} \
+            --ground_truth ../../corpora/ground-truth.arrow \
+            --csv_output ${item.output} \
+            --index_output ${item.index_output}
+      deps:
+        - ../../src/preprocess_selektion.py
+        - ../../src/data_adapters
+        - ${dnb_baseline.part_dir}
+        - ../../corpora/ground-truth.arrow
+        - ${item.index_file}
+      params:
+        - dnb_baseline
+      outs:
+        - ${item.output}
+        - ${item.index_output}

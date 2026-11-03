@@ -135,3 +135,26 @@ abstract_intro_toc_datasets:
     index_file: ../../corpora/title/test.arrow
     output: preprocessed/bedingungen/abstract_intro_toc/test.csv
     index_output: preprocessed/bedingungen/abstract_intro_toc/test.arrow
+
+
+# 6: DNB-Baseline — erste 30.000 Zeichen Volltext, extrahiert mit PDFBox (aktuelles DNB-Verfahren)
+dnb_baseline:
+  part_dir: ../../corpora/Fulltext_30k_PDF_Box
+  part_suffix: .md
+  cleaning: none
+  # drop: documents without full text are removed from CSV and index
+  empty_policy: drop
+
+dnb_baseline_datasets:
+  dnb_baseline_train:
+    index_file: ../../corpora/title/train.arrow
+    output: preprocessed/bedingungen/dnb_baseline/train.csv
+    index_output: preprocessed/bedingungen/dnb_baseline/train.arrow
+  dnb_baseline_validate:
+    index_file: ../../corpora/title/validate.arrow
+    output: preprocessed/bedingungen/dnb_baseline/validate.csv
+    index_output: preprocessed/bedingungen/dnb_baseline/validate.arrow
+  dnb_baseline_test:
+    index_file: ../../corpora/title/test.arrow
+    output: preprocessed/bedingungen/dnb_baseline/test.csv
+    index_output: preprocessed/bedingungen/dnb_baseline/test.arrow
