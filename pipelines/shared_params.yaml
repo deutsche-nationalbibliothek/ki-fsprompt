@@ -26,7 +26,7 @@ vllm:
     tensor_parallel_size: 1
     dtype: auto
     enforce_eager: true
-    max_model_len: 40000
+    max_model_len: 90000
   global_samplingparams:
     presence_penalty: 0
     frequency_penalty: 0
@@ -42,7 +42,7 @@ completion:
     samplingparams:
       max_new_tokens: 256
       min_new_tokens: 0
-      max_total_tokens: 40000
+      max_total_tokens: 90000
       max_chunks: 1
       temperature: 0
   models:

@@ -2920,3 +2920,182 @@ stages:
       hash: md5
       md5: 2c680a6930a4bf81cf434a8e65a8591d
       size: 246
+  create_train_collection@dnb_baseline:
+    cmd:
+    - "python ../../src/create_train_collection.py \\\n  --text_data ../preprocess/preprocessed/bedingungen/dnb_baseline/train.csv
+      \\\n  --collection_name dnb_baseline_train \\\n  --text_type title \\\n  --chunk_size
+      512 \\\n  --batch_size 8 \\\n  --embedding_model BAAI/bge-m3 \\\n  --manifest_out
+      results/dnb_baseline_validate/collection_manifest.json \\\n  --overwrite\n"
+    deps:
+    - path: ../../src/create_train_collection.py
+      hash: md5
+      md5: 2b4f8253e725f3790f5fbdc13a4c8ea0
+      size: 13848
+    - path: ../preprocess/preprocessed/bedingungen/dnb_baseline/train.csv
+      hash: md5
+      md5: 1662e436c971eec976ad6a2acc12cf8f
+      size: 276305508
+    params:
+      params.yaml:
+        train.batch_size: 8
+        train.chunk_size: 512
+        train.text_type: title
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+    outs:
+    - path: results/dnb_baseline_validate/collection_manifest.json
+      hash: md5
+      md5: 0b9d092a24f1516e9e0de9070c46c3d0
+      size: 275
+  retrieve@dnb_baseline:
+    cmd:
+    - "python ../../src/retrieve.py \\\n  --input_text_data ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.csv
+      \\\n  --output_file results/dnb_baseline_validate/retrieved_examples.csv \\\n\
+      \  --n_examples 5 \\\n  --host 8090 \\\n  --collection_name dnb_baseline_train\n"
+    deps:
+    - path: ../../src/retrieve.py
+      hash: md5
+      md5: b609a115e95ca92a4a99642530aa5c21
+      size: 4416
+    - path: ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.csv
+      hash: md5
+      md5: 500713afe4424e7027fcec68b89dfd0f
+      size: 25684370
+    - path: results/dnb_baseline_validate/collection_manifest.json
+      hash: md5
+      md5: 0b9d092a24f1516e9e0de9070c46c3d0
+      size: 275
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        retrieve.n_examples: 5
+    outs:
+    - path: results/dnb_baseline_validate/retrieved_examples.csv
+      hash: md5
+      md5: d20f0d482d7531945e3c442a3f1e0b44
+      size: 256914608
+  complete@dnb_baseline-qwen-3p8-27B:
+    cmd:
+    - mkdir -p results/dnb_baseline_validate/qwen-3p8-27B/
+    - "python ../../src/completion.py \\\n  --hf_model_name Qwen/Qwen3.8-27B-FP8 \\\
+      \n  --dataset_file ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.csv
+      \\\n  --completion_file results/dnb_baseline_validate/qwen-3p8-27B/completions.csv
+      \\\n  --prompt_specification results/dnb_baseline_validate/retrieved_examples.csv
+      \\\n  --custom_instructions ../../instructions/instruction_dnb_baseline.txt
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../instructions/instruction_dnb_baseline.txt
+      hash: md5
+      md5: 350e63af61a4827be09fb0d20505a1b7
+      size: 181
+    - path: ../../src/PromptBuilder.py
+      hash: md5
+      md5: a84837cb0cb72ae3d99159ead4280302
+      size: 3288
+    - path: ../../src/completion.py
+      hash: md5
+      md5: 86febf074c29e55450c7c1e3f5915cc8
+      size: 22904
+    - path: ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.csv
+      hash: md5
+      md5: 500713afe4424e7027fcec68b89dfd0f
+      size: 25684370
+    - path: results/dnb_baseline_validate/retrieved_examples.csv
+      hash: md5
+      md5: d20f0d482d7531945e3c442a3f1e0b44
+      size: 256914608
+    params:
+      ../shared_params.yaml:
+        completion.vllm.samplingparams.max_chunks: 1
+        completion.vllm.samplingparams.max_new_tokens: 256
+        completion.vllm.samplingparams.max_total_tokens: 90000
+        completion.vllm.samplingparams.min_new_tokens: 0
+        completion.vllm.samplingparams.temperature: 0
+        vllm.global_samplingparams.frequency_penalty: 0
+        vllm.global_samplingparams.presence_penalty: 0
+        vllm.global_samplingparams.repetition_penalty: 1
+        vllm.global_samplingparams.top_p: 1
+    outs:
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/completions.csv
+      hash: md5
+      md5: dd42516c31a582f1b53922d023a02de2
+      size: 118705
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/gpu_log.csv
+      hash: md5
+      md5: 419b0c55aeb5608b8f5cb871dd2c8d4b
+      size: 836011
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/resource_stats.json
+      hash: md5
+      md5: f14220bc1ac74f57c61f18cc85c0301b
+      size: 724
+  map@dnb_baseline-qwen-3p8-27B:
+    cmd:
+    - "python ../../src/mapping.py \\\n  --completion_file results/dnb_baseline_validate/qwen-3p8-27B/completions.csv
+      \\\n  --output_file results/dnb_baseline_validate/qwen-3p8-27B/mapped_predictions.csv
+      \\\n  --mapping_stats results/dnb_baseline_validate/qwen-3p8-27B/mapping_stats.json
+      \\\n  --params_file ../shared_params.yaml \n"
+    deps:
+    - path: ../../src/mapping.py
+      hash: md5
+      md5: 4e975bad3a8eceb77dba981dd75c35d8
+      size: 12088
+    - path: ../../vocab/create_vocab_collection_manifest.json
+      hash: md5
+      md5: c4fedf005977e6e9d6f76d91d5a8e825
+      size: 256
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/completions.csv
+      hash: md5
+      md5: dd42516c31a582f1b53922d023a02de2
+      size: 118705
+    params:
+      ../shared_params.yaml:
+        embedding.model: BAAI/bge-m3
+        mapping.hyperparameters.alpha: 0.7
+        mapping.hyperparameters.min_cosine_similarity: 0.7
+        mapping.hyperparameters.search: hybrid
+        vocab.weaviate_collection_name: ki_fsprompt_vocab
+    outs:
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/mapped_predictions.csv
+      hash: md5
+      md5: c44e8400c2045a067538ff1db9c35531
+      size: 374155
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/mapping_stats.json
+      hash: md5
+      md5: 504f6448ec576ddc76fe0084a3feef57
+      size: 53
+    - path: 
+        results/dnb_baseline_validate/qwen-3p8-27B/removed_mapped_predictions.csv
+      hash: md5
+      md5: 1b9040aff21043474c866bec51f3f9d5
+      size: 5248
+  compute_metrics_modelwise@dnb_baseline-qwen-3p8-27B:
+    cmd:
+    - "Rscript ../../src/compute_metrics.R \\\n  --predictions results/dnb_baseline_validate/qwen-3p8-27B/mapped_predictions.csv
+      \\\n  --index ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.arrow
+      \\\n  --ground-truth ../../corpora/ground-truth.arrow \\\n  --res_dir results/dnb_baseline_validate/qwen-3p8-27B/
+      \\\n  --kind title \\\n  --n_threads 20 \\\n  --set_retrieval_only TRUE \n"
+    deps:
+    - path: ../../corpora/ground-truth.arrow
+      hash: md5
+      md5: ae01d2322dc9d6af16d8f7d712a7ca8a
+      size: 3487178
+    - path: ../../src/compute_metrics.R
+      hash: md5
+      md5: cb4ba710d8dd4ca699fd8abdd84c3558
+      size: 4171
+    - path: ../preprocess/preprocessed/bedingungen/dnb_baseline/validate.arrow
+      hash: md5
+      md5: 4d286263689d8e1aa2b6c3fcc1ff8609
+      size: 32610
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/mapped_predictions.csv
+      hash: md5
+      md5: c44e8400c2045a067538ff1db9c35531
+      size: 374155
+    params:
+      params.yaml:
+        predict.text_type: title
+    outs:
+    - path: results/dnb_baseline_validate/qwen-3p8-27B/scores_at_100_R.yaml
+      hash: md5
+      md5: 2ee78df34c321f9974fa634989ae68b3
+      size: 246
