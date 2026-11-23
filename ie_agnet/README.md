@@ -37,9 +37,6 @@ is not found yet). Because of `--editable`, changes to the code take effect at o
 ie-agent --gpu 1 run             # one complete run on GPU 1
 ```
 
-This starts the language model on GPU 1, waits until it is ready, annotates all documents, writes the results to
-`ie_agnet/results/` and stops the model again. Run it inside `tmux`, then you can close the terminal (`Ctrl+b`, then
-`d`) and come back later with `tmux attach`.
 
 `ie-agent` works from any folder: results, GND data and `eval_ids.txt` are found relative to the `ie_agnet` folder.
 Without the installation, use `uv run ie-agent …` inside the `ie_agnet` folder.

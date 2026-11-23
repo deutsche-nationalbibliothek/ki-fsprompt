@@ -48,7 +48,12 @@ DEFAULT_MAX_STEPS = 14
 
 
 # ---------------------------------------------------------------------------------------------------------
-# The result folder of a run
+# The result folder of a run: Every run gets its own folder, named after its conditions, so you can tell
+# from the name alone what was switched on. Before a run starts, the folder is checked: if it is empty, the
+# run starts fresh; if it holds the same run, it picks up where it stopped and keeps the finished documents.
+# If it holds a different run (other model, prompt or mapping settings), it stops instead of mixing or overwritung results,
+# unless you pass --force. The log has one line per document, and if a document was run twice, the last
+# line counts.
 # ---------------------------------------------------------------------------------------------------------
 
 def _on_off(value):
@@ -178,7 +183,12 @@ def _write_settings(folder, settings):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# Evaluation of a finished run: predictions, scores (R), analysis
+# Evaluation of a finished run: The log is turned into the same files KI-FS Prompt produces, so agent and
+# pipeline can be scored the same way. First mapped_predictions.csv with one row per heading, then
+# index.arrow with all documents of the run, so a document without headings counts as 0 instead of being
+# left out. With both, the R script computes the casimir scores. At the end comes the analysis: which tools
+# the agent used, which way it went and where its hits came from. If scoring or analysis fails, the results
+# are still safe and the step can be repeated on its own.
 # ---------------------------------------------------------------------------------------------------------
 
 def write_predictions(folder):
@@ -299,7 +309,11 @@ def write_analysis(cfg, folder):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# One batch run
+# One batch run: Runs the agent on all documents of a split, from start to scores. It prepares the folder,
+# skips documents that are already done and repeats the ones that failed. Then it annotates the rest in
+# parallel while the GPU usage is logged. Each document is written to the log as soon as it is done, so an
+# interrupted run only loses what was still running, and one broken document does not stop the others.
+# At the end, the run's time and resources are recorded and the evaluation is written.
 # ---------------------------------------------------------------------------------------------------------
 
 def run_batch(cfg, agent, ids, name=None, force=False):
@@ -381,7 +395,13 @@ def _annotate_all(agent, todo, log_file, parallel):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# Trace of one document
+# Trace of one document: Runs the agent on a single document and records everything it did, so you can
+# follow its decisions step by step. The result is saved twice: as JSON for analysis and as Markdown for
+# reading.
+# The Markdown starts with a short summary: title, model, number of steps, tokens and time, plus the
+# assigned headings next to the gold ones. After that comes one section per step, showing which tools
+# were offered, what the model thought, what it called and what came back. Long texts like the system
+# prompt or tool results are folded so the page stays readable.
 # ---------------------------------------------------------------------------------------------------------
 
 def write_trace(cfg, agent, title, doc_id):
@@ -487,7 +507,8 @@ def _folded(summary, text):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# Small helpers
+# Small helpers: The current time for the settings, and the git commit, so every run can be traced back to
+# the exact code it ran with.
 # ---------------------------------------------------------------------------------------------------------
 
 def _now():
